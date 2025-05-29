@@ -1,0 +1,13 @@
+<RCC>
+    <qresource prefix="/">
+        <file>pictures/blur3.jpg</file>
+        <file>pictures/blur4.jpg</file>
+        <file>pictures/blur51.jpg</file>
+        <file>pictures/blur61.jpg</file>
+        <file>pictures/blur81.jpg</file>
+        <file>pictures/fullblurbluesky.png</file>
+        <file>pictures/ima.png</file>
+        <file>pictures/image.png</file>
+        <file>pictures/image2.png</file>
+    </qresource>
+</RCC>
