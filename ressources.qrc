@@ -1,0 +1,24 @@
+<RCC>
+    <qresource prefix="/">
+        <file>ressources/certificates/client/ca.crt</file>
+        <file>ressources/certificates/client/client.crt</file>
+        <file>ressources/certificates/client/client.key</file>
+        <file>ressources/CheckBox.svg</file>
+        <file>ressources/CheckBoxInterminate.svg</file>
+        <file>ressources/CheckBoxInterminatePressed.svg</file>
+        <file>ressources/CheckBoxPressed.svg</file>
+        <file>ressources/ComboBox.svg</file>
+        <file>ressources/ComboBoxDisabled.svg</file>
+        <file>ressources/RadioButton.svg</file>
+        <file>ressources/RadioButtonHover.svg</file>
+        <file>ressources/RadioButtonPressed.svg</file>
+        <file>ressources/ScrollBar.png</file>
+        <file>ressources/settings.json</file>
+        <file>ressources/SpinBoxDown.svg</file>
+        <file>ressources/SpinBoxDownDisabled.svg</file>
+        <file>ressources/SpinBoxUp.svg</file>
+        <file>ressources/SpinBoxUpDisabled.svg</file>
+        <file>ressources/TreeViewClose.svg</file>
+        <file>ressources/TreeViewOpen.svg</file>
+    </qresource>
+</RCC>

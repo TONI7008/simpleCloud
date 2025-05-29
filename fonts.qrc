@@ -1,0 +1,6 @@
+<RCC>
+    <qresource prefix="/">
+        <file>fonts/Noto-COLRv1-emojicompat.ttf</file>
+        <file>fonts/NotoColorEmoji.ttf</file>
+    </qresource>
+</RCC>
