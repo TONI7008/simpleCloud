@@ -388,6 +388,13 @@ void Setting::setPicture(QPixmap p){
 void Setting::loadSettingToUi()
 {
 
+    // Set themeComboBox based on SettingsManager
+    if (m_Manager->theme() == TCLOUD::Light) {
+        ui->themeComboBox->setCurrentIndex(0); // Assuming "Light" is the first item (index 0)
+    } else {
+        ui->themeComboBox->setCurrentIndex(1); // Assuming "Dark" is the second item (index 1)
+    }
+
     ui->transparencyButton->setChecked(m_Manager->transparency());
     ui->disableAnimationButton->setChecked(m_Manager->animationEnabled());
     ui->animationDurationSpinBox->setValue(m_Manager->animationDuration());
@@ -570,6 +577,15 @@ void Setting::Init()
 
 void Setting::addLogic()
 {
+
+    // Connect themeComboBox signal
+    m_connections << connect(ui->themeComboBox, QOverload<int>::of(&QComboBox::currentIndexChanged), this, [this](int index) {
+        if (index == 0) { // Assuming "Light"
+            m_Manager->setTheme(TCLOUD::Light);
+        } else { // Assuming "Dark"
+            m_Manager->setTheme(TCLOUD::Dark);
+        }
+    });
 
     m_connections << connect(ui->fontComboBox,&QFontComboBox::currentFontChanged,this,[this](QFont font){
         m_Manager->setFontFamily(font.toString());

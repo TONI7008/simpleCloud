@@ -1,0 +1,603 @@
+QWidget {
+    background-color: #ffffff;
+    color: #000000;
+    selection-background-color: #469ef5; /* A blue for selection, can be adjusted */
+    selection-color: #ffffff;
+}
+
+QMainWindow, QDialog {
+    background-color: #f0f0f0; /* Slightly off-white for main window backgrounds */
+}
+
+QPushButton {
+    background-color: #e0e0e0;
+    color: #000000;
+    border: 1px solid #c0c0c0;
+    padding: 5px;
+    border-radius: 3px;
+}
+QPushButton:hover {
+    background-color: #d0d0d0;
+}
+QPushButton:pressed {
+    background-color: #c0c0c0;
+}
+
+QLineEdit, QTextEdit, QSpinBox, QDoubleSpinBox, QComboBox {
+    background-color: #ffffff;
+    color: #000000;
+    border: 1px solid #c0c0c0;
+    border-radius: 3px;
+    padding: 3px;
+}
+QComboBox::drop-down {
+    border-left: 1px solid #c0c0c0;
+}
+QComboBox::down-arrow {
+    image: url(:/icons/arrow_down_dark.svg); /* Needs a dark arrow icon */
+}
+
+
+QLabel {
+    color: #000000;
+    background-color: transparent; /* Ensure labels have transparent background by default */
+}
+
+QToolTip {
+    background-color: #ffffdc;
+    color: #000000;
+    border: 1px solid #c0c0c0;
+}
+
+/* Styles for custom widgets */
+TFrame {
+    background-color: #f8f8f8; /* Slightly different background for custom frames */
+    border: 1px solid #d0d0d0;
+    border-radius: 4px;
+}
+
+/* Style for CustomToolButton (used in settings) */
+CustomToolButton {
+    background:transparent;
+    color: #000000; /* Default text color */
+    border-radius:6px;
+}
+CustomToolButton:hover{
+    color: #469ef5; /* Blue for hover */
+    background:rgba(200,200,200,0.6); /* Light gray hover */
+}
+CustomToolButton[selected="true"] {
+    background:rgba(180,180,180,0.6); /* Slightly darker selected background */
+    color: #469ef5; /* Blue for selected text */
+}
+
+/* Specific styles from the application's dark theme, adapted for light */
+/* General QWidget styling from the original dark theme (adapted) */
+QWidget {
+    font: 13pt "Noto Sans";
+    border-radius: 12px; /* This was in the original dark theme's top-level QWidget */
+}
+
+/* Styles for QToolButton similar to the original dark theme (adapted) */
+QToolButton {
+    border-radius:10px;
+    background-color: rgba(200,200,200,0.4); /* Lighter gray */
+    padding-left:10px;
+    padding-right:10px;
+    color: #000000;
+}
+QToolButton:hover {
+    /* Using a solid color instead of gradient for simplicity in light theme */
+    background-color: rgba(150,170,220,0.5); /* Light blue hover */
+}
+
+/* Adapting some specific ID styles from the original dark theme if necessary */
+/* Example: #showpanelButton */
+#showpanelButton {
+    border-radius:10px;
+    background-color: rgba(200,200,200,0.4);
+    padding-left:10px;
+    padding-right:10px;
+    color: #000000;
+}
+#showpanelButton:hover {
+    background-color: rgba(150,170,220,0.5);
+}
+
+/* QStackedWidget specific styling from original dark theme (adapted) */
+QStackedWidget {
+    border-radius:15px;
+    background:transparent;
+}
+
+/* QScrollArea specific styling from original dark theme (adapted) */
+QScrollArea {
+    border-radius: 15px;
+    color: #000000; 
+    background:rgba(230, 230, 230,0.9); /* Light background for scroll area content */
+}
+
+QScrollBar:vertical {
+    border: 6px solid rgba(0,0,0,0); /* Transparent border */
+    background-color: transparent;
+    margin: 0px 0px 0px 0px;
+    width: 16px;
+}
+QScrollBar:vertical:hover {
+    border: 5px solid rgba(0,0,0,0);
+}
+QScrollBar::handle:vertical {
+    background-color: rgba(0,0,0,100); /* Darker handle for light theme */
+    border-radius: 2px;
+    min-height: 25px;
+}
+QScrollBar::add-page:vertical, QScrollBar::sub-page:vertical {
+    background: none;
+}
+
+/* QPushButton inside QScrollArea (adapted) */
+QScrollArea QPushButton {
+    border-radius:8px;
+    background-color: rgba(200,200,200,0.4);
+    padding-left:10px;
+    padding-right:10px;
+    color: #000000;
+}
+QScrollArea QPushButton:hover{
+    background: #469ef5; /* Blue hover, consistent with selection */
+    color: #ffffff;
+}
+
+/* Specific button ID in QScrollArea */
+#resetAppareanceSettingButton {
+    border-radius:10px;
+    background-color: rgba(200,200,200,0.4);
+    padding-left:10px;
+    padding-right:10px;
+    color: #000000;
+}
+#resetAppareanceSettingButton:hover {
+    background: #469ef5;
+    color: #ffffff;
+}
+
+/* CoverFrame specific style (assuming it's a TFrame) */
+TFrame#coverFrame { /* More specific selector */
+    border:1px solid #cccccc; /* Lighter border */
+}
+
+/* PictureLabel specific style (assuming it's a QLabel) */
+QLabel#pictureLabel {
+    border-radius: 105px; /* Keep as is if it's for a circular picture */
+    border:2px solid #888888; /* Darker border for light theme */
+}
+
+/* HoverButton specific style (assuming it's a custom QPushButton) */
+HoverButton { /* Base style for HoverButton */
+    background-color: transparent;
+    color: #000000;
+    border: none;
+    padding: 5px;
+}
+HoverButton:hover {
+    background-color: rgba(0,0,0,0.1); /* Slight overlay on hover */
+}
+
+/* Top bar buttons from original dark theme (adapted) */
+QFrame#frame_3 QPushButton { /* Assuming frame_3 is the top bar */
+    border-radius:8px;
+    background-color: transparent;
+    padding-left:10px;
+    padding-right:10px;
+    color: #000000; /* Dark text */
+}
+QFrame#frame_3 QPushButton:hover{
+    border:1px solid #469ef5; /* Blue border on hover */
+}
+
+/* Save button specific style */
+HoverButton#save {
+    font: 700 14pt "Noto Sans";
+    color: #000000; /* Dark text */
+}
+HoverButton#save:hover {
+    border:1px solid #469ef5;
+    color: #469ef5; /* Blue text on hover */
+}
+
+/* Close button specific style */
+QToolButton#closesetting {
+    border-radius:10px;
+    background-color: transparent;
+    padding-left:10px;
+    padding-right:10px;
+    color: #000000; /* Dark icon/text */
+}
+QToolButton#closesetting:hover {
+    background:rgba(255,0,0,0.1); /* Light red hover */
+}
+
+/* Ensure ToggleButton is styled for light theme */
+ToggleButton {
+    border:1px solid #888888; /* Darker border */
+    background-color: #f0f0f0;
+}
+ToggleButton:checked {
+    background-color: #469ef5; /* Blue when checked */
+    border:1px solid #469ef5;
+}
+
+/* CheckBox styling from original (adapted) */
+QCheckBox::indicator {
+    width: 15px;
+    height: 15px;
+    border-radius: 4px;
+    border: 1px solid #848484; /* Darker border */
+    background-color: rgba(0,0,0,0);
+}
+QCheckBox::indicator:hover {
+    background-color: rgba(0,0,0,0.1);
+}
+QCheckBox::indicator:checked {
+    background-color: #469ef5; /* Blue check */
+    border: 1px solid #469ef5;
+    image: url(:/ressources/CheckBox.svg); /* Assuming this SVG is fine on blue */
+}
+
+/* RadioButton styling from original (adapted) */
+QRadioButton::indicator {
+    width: 15px;
+    height: 15px;
+    border-radius: 8px;
+    border: 1px solid #848484; /* Darker border */
+    background-color: rgba(0,0,0,0);
+}
+QRadioButton::indicator:hover {
+    background-color: rgba(0,0,0,0.1);
+}
+QRadioButton::indicator:checked {
+    background-color: #469ef5; /* Blue check */
+    border: 1px solid #469ef5;
+    image: url(:/ressources/RadioButton.svg); /* Assuming this SVG is fine on blue */
+}
+
+/* Explicitly set background to transparent for some specific custom widgets if needed */
+SelectOption {
+    background-color: transparent;
+}
+
+BackgroundFrame {
+    background-color: transparent;
+}
+
+/* Icons to check for light theme alternatives:
+- :/icons/down-arrow.png (used in general QComboBox) -> need arrow_down_dark.svg
+- :/icons/up-arrow.png (used in general QSpinBox) -> need arrow_up_dark.svg
+- :/icons/resumewhite.svg -> playButton
+- :/icons/pausewhite.svg -> playButton
+- :/icons/editwhite.svg -> edit buttons
+- :/icons/eyeclosewhite.svg -> seeButton
+- :/icons/eyewhite.svg -> seeButton
+- :/icons/appareance_white.svg -> appareanceB
+- :/icons/toolwhite.svg -> utilitiesB
+- :/icons/ringbellwhite.svg -> notificationB
+- :/icons/accountwhite.svg -> accountB
+- :/icons/savewhite.svg -> save button
+- :/icons/closewhite.svg -> closesetting button
+- Many icons in the icons/ directory have "white" in their name.
+  A general strategy would be to have corresponding "dark" or "blue" versions.
+  For example, if an icon is loaded by name like ui->someButton->setIcon(QIcon(":/icons/featureXwhite.svg")),
+  this path needs to be changed dynamically or the QSS needs to override the icon for specific widgets.
+  The QComboBox::down-arrow example shows one way to do it in QSS.
+*/
+
+/* For QSpinBox up/down arrows, if using SVG: */
+QSpinBox::up-arrow {
+    image: url(:/ressources/SpinBoxUp_dark.svg); /* Example, needs dark version */
+}
+QSpinBox::down-arrow {
+    image: url(:/ressources/SpinBoxDown_dark.svg); /* Example, needs dark version */
+}
+QSpinBox::up-button, QSpinBox::down-button {
+    background-color: #e0e0e0; /* Match button background */
+    border: 1px solid #c0c0c0;
+    border-radius: 2px;
+}
+QSpinBox::up-button:hover, QSpinBox::down-button:hover {
+    background-color: #d0d0d0;
+}
+
+/* Ensure specific UI elements from dark theme that use hardcoded-like colors are reset or adapted */
+QLabel#title { /* The main title in the header */
+    color: #000000; /* Dark text for light theme */
+    background:transparent;
+}
+
+QFrame#frame { /* The left panel frame */
+    background:rgba(230, 230, 230, 0.8); /* Light background */
+}
+QFrame#frame QToolButton { /* Buttons in the left panel */
+    background:transparent;
+    color: #000000;
+}
+QFrame#frame QToolButton:hover{
+    background:rgba(200,200,200,0.6);
+    color: #469ef5;
+}
+QFrame#frame_3 { /* The top header frame */
+     background:rgba(220, 220, 220, 0.8); /* Light background */
+}
+
+/* Search box styling */
+QLineEdit#searchLineEdit {
+    /* Keep specific styles if they are theme-neutral or adapt them */
+}
+QFrame#searchFile {
+    /* Adapt border or background if needed */
+}
+
+/* Progress bar */
+CircularProgressBar {
+    /* Define light theme colors if not inheriting properly */
+    /* color: #000000; if text is part of it */
+    /* background-color: transparent; */
+}
+
+/* User Frame specific elements */
+QFrame#userFrame {
+    background-color: transparent;
+}
+QLabel#usernameLabel {
+    color: #000000;
+    background-color: transparent;
+}
+
+/* Path display frame */
+TDynamicFrame#dynamicFrame {
+    background-color: transparent;
+    /* color: #000000; for text if any */
+}
+
+/* FileWidget specific styles - this is a custom class, may need internal changes or specific QSS */
+TFileWidget {
+    background-color: #fafafa; /* Slightly off-white for individual file widgets */
+    color: #000000;
+    border: 1px solid #e0e0e0;
+    border-radius: 4px;
+}
+TFileWidget:hover {
+    background-color: #f0f0f0;
+}
+TFileWidget[selected="true"] { /* If there's a selection property */
+    background-color: #d0e0f0; /* Light blue selection */
+    border: 1px solid #469ef5;
+}
+
+/* StackedWidget on home page */
+QStackedWidget#fileStack {
+    background-color: transparent; /* Or a light color if preferred */
+}
+
+/* Usage page elements */
+QWidget#usagepage QLabel { /* Assuming labels on usage page need this color */
+    color: #000000;
+    background-color: transparent;
+}
+
+QWidget#usagepage CircularProgressBar {
+    /* Styles if different from default CircularProgressBar */
+}
+
+/* Buttons in the main left navigation panel */
+QPushButton#homeButton, QPushButton#trashButton, QPushButton#usageButton, QPushButton#settingButton, QPushButton#refreshButton, QPushButton#closeButton {
+    color: #000000; /* Ensure text/icons are dark */
+    background-color: #e0e0e0;
+    border: 1px solid #c0c0c0;
+}
+QPushButton#homeButton:hover, QPushButton#trashButton:hover, QPushButton#usageButton:hover, QPushButton#settingButton:hover, QPushButton#refreshButton:hover, QPushButton#closeButton:hover {
+    background-color: #d0d0d0;
+}
+
+/* Ensure the specific icons in these buttons are also changed if they are SVG and colorized by QSS, or use different icon files */
+
+/* Blur effects might need adjustment if they are part of QSS, though usually done in C++ */
+TBlurWidget { /* If this is a custom widget that applies blur */
+    /* Potentially adjust blur parameters or overlay color for light theme if controlled by QSS */
+}
+
+/* Setting page elements might have specific names that need overriding from their dark theme styles */
+QWidget#appareancePage, QWidget#notificationPage, QWidget#utilitiesPage, QWidget#userInfoPage {
+    background:transparent; /* Keep the overall page background transparent */
+}
+
+/* Specific frames within settings pages */
+QFrame#backgroundImageFrame, QFrame#backgroundColorFrame, QFrame#trashFrame, QFrame#userDataPathFrame, QFrame#frame_5, QFrame#blurFrame {
+    background:rgba(230, 230, 230,0.8); /* Lighter background for these frames */
+    border-radius:15px;
+}
+QFrame#backgroundImageFrame QLabel, QFrame#backgroundColorFrame QLabel, QFrame#trashFrame QLabel {
+    background:transparent;
+    color: #000000;
+}
+
+/* Specific buttons within settings */
+QFrame#backgroundImageFrame QPushButton, QFrame#backgroundColorFrame QPushButton {
+    background-color: #d0d0d0;
+    color: #000000;
+}
+QFrame#backgroundImageFrame QPushButton:hover, QFrame#backgroundColorFrame QPushButton:hover {
+    background-color: #c0c0c0;
+}
+
+/* Toggle buttons in settings */
+QWidget#appareancePage ToggleButton, QWidget#notificationPage ToggleButton, QWidget#utilitiesPage ToggleButton {
+    border:1px solid #888888;
+}
+QWidget#appareancePage ToggleButton:checked, QWidget#notificationPage ToggleButton:checked, QWidget#utilitiesPage ToggleButton:checked {
+    background-color: #469ef5;
+    border:1px solid #469ef5;
+}
+
+
+/* User info page specific line edits and buttons */
+QWidget#userInfoPage QLineEdit {
+    background-color: #ffffff;
+    color: #000000;
+    border: 1px solid #c0c0c0;
+}
+QWidget#userInfoPage QPushButton {
+    background-color: #e0e0e0;
+    color: #000000;
+}
+QWidget#userInfoPage QPushButton:hover {
+    background-color: #d0d0d0;
+}
+QWidget#userInfoPage QPushButton#deleteAccountButton, QWidget#userInfoPage QPushButton#resetAllButton {
+    background-color: #e0e0e0; /* Standard button color */
+    color: #000000;
+}
+QWidget#userInfoPage QPushButton#deleteAccountButton:hover, QWidget#userInfoPage QPushButton#resetAllButton:hover {
+    background-color: #ffc0c0; /* Light red for destructive actions on hover */
+    color: #000000;
+}
+
+/* Ensure loading frame text is visible */
+LoadingFrame QLabel {
+    color: #000000; /* Or a color that contrasts with its background */
+    background-color: transparent;
+}
+
+/* InputDialog and InfoPage if they are custom dialogs */
+InputDialog, InfoPage {
+    background-color: #f0f0f0; /* Match QDialog */
+    color: #000000;
+}
+InputDialog QLabel, InfoPage QLabel {
+    color: #000000;
+    background-color: transparent;
+}
+InputDialog QPushButton, InfoPage QPushButton {
+    background-color: #e0e0e0;
+    color: #000000;
+    border: 1px solid #c0c0c0;
+}
+InputDialog QPushButton:hover, InfoPage QPushButton:hover {
+    background-color: #d0d0d0;
+}
+InputDialog QLineEdit, InfoPage QLineEdit { /* If they have line edits */
+    background-color: #ffffff;
+    color: #000000;
+    border: 1px solid #c0c0c0;
+}
+
+/* Scrollbars in general */
+QScrollBar::add-line:vertical, QScrollBar::sub-line:vertical {
+    /* image: url(:/resources/ScrollBar_dark.png);  Need dark versions if these are used */
+    /* For now, remove image to use default arrows or ensure they are styled if SVGs */
+    image: none;
+    border: none;
+    background: #e0e0e0;
+    height: 15px;
+    width: 16px;
+    subcontrol-position: top;
+    subcontrol-origin: margin;
+}
+QScrollBar::add-line:vertical {
+    subcontrol-position: bottom;
+}
+QScrollBar::add-line:vertical:hover, QScrollBar::sub-line:vertical:hover {
+    background: #d0d0d0;
+}
+
+/* Horizontal Scrollbars */
+QScrollBar:horizontal {
+    border: 6px solid rgba(0,0,0,0);
+    background-color: transparent;
+    margin: 0px 0px 0px 0px;
+    height: 16px;
+}
+QScrollBar:horizontal:hover {
+    border: 5px solid rgba(0,0,0,0);
+}
+QScrollBar::handle:horizontal {
+    background-color: rgba(0,0,0,100);
+    border-radius: 2px;
+    min-width: 25px;
+}
+QScrollBar::add-page:horizontal, QScrollBar::sub-page:horizontal {
+    background: none;
+}
+QScrollBar::add-line:horizontal, QScrollBar::sub-line:horizontal {
+    image: none;
+    border: none;
+    background: #e0e0e0;
+    width: 15px;
+    height: 16px;
+    subcontrol-position: left; /* left for sub-line, right for add-line */
+    subcontrol-origin: margin;
+}
+QScrollBar::add-line:horizontal {
+    subcontrol-position: right;
+}
+QScrollBar::add-line:horizontal:hover, QScrollBar::sub-line:horizontal:hover {
+    background: #d0d0d0;
+}
+
+/* TreeView / TableView */
+QTreeView, QTableView {
+    background-color: #ffffff;
+    color: #000000;
+    border: 1px solid #c0c0c0;
+    selection-background-color: #469ef5;
+    selection-color: #ffffff;
+}
+QHeaderView::section {
+    background-color: #e0e0e0;
+    color: #000000;
+    padding: 4px;
+    border: 1px solid #c0c0c0;
+}
+
+/* Menu */
+QMenu {
+    background-color: #ffffff;
+    color: #000000;
+    border: 1px solid #c0c0c0;
+}
+QMenu::item {
+    padding: 5px 20px 5px 20px;
+}
+QMenu::item:selected {
+    background-color: #469ef5;
+    color: #ffffff;
+}
+QMenu::separator {
+    height: 1px;
+    background: #c0c0c0;
+    margin-left: 10px;
+    margin-right: 5px;
+}
+
+/* TabWidget */
+QTabWidget::pane {
+    border: 1px solid #c0c0c0;
+    border-top: none;
+}
+QTabBar::tab {
+    background-color: #e0e0e0;
+    color: #000000;
+    border: 1px solid #c0c0c0;
+    border-bottom: none; /* Solid line on top */
+    padding: 5px 10px;
+    margin-right: 2px;
+    border-top-left-radius: 4px;
+    border-top-right-radius: 4px;
+}
+QTabBar::tab:selected {
+    background-color: #ffffff; /* Selected tab matches pane background */
+    border-bottom: 1px solid #ffffff; /* Seamless with pane */
+}
+QTabBar::tab:!selected:hover {
+    background-color: #d0d0d0;
+}
+```

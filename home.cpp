@@ -2,6 +2,8 @@
 #include "ui_home.h"
 #include "infopage.h"
 #include "inputdialog.h"
+#include <QApplication>
+#include <QDebug>
 
 #include "tfilemanager.h"
 #include "loadingframe.h"
@@ -76,6 +78,13 @@ Home::Home(TSecurityManager* smanager,QWidget *parent)
         connect(m_settingManager,&SettingsManager::backgroundImageChanged,this,[this](const QString&path){
             setBackgroundImage(path);
         });
+
+        // Connect themeChanged signal
+        connect(m_settingManager, &SettingsManager::themeChanged, this, &Home::applyAppTheme);
+
+        // Apply initial theme
+        applyAppTheme(m_settingManager->theme());
+
 
         if(m_settingManager->customImage()) setBackgroundImage(m_settingManager->backgroundImage());
         if(m_settingManager->customColor()) setBackgroundImage(m_settingManager->backgroundColor());
@@ -189,6 +198,33 @@ Home::Home(TSecurityManager* smanager,QWidget *parent)
     load("Welcome to simple Cloud 😊. Lets sign you in.....");
 
     resize(900,600);
+}
+
+#include <QFile>
+#include <QTextStream>
+// QApplication is already included via ui_home.h or indirectly, qApp is a global pointer
+
+void Home::applyAppTheme(TCLOUD::Theme theme) {
+    QString qssPath;
+    if (theme == TCLOUD::Light) {
+        qssPath = ":/ressources/themes/light.qss"; // Path from QRC
+        qDebug() << "Applying Light Theme from QSS to Home";
+    } else { // TCLOUD::Dark
+        qssPath = ":/ressources/themes/dark.qss"; // Path from QRC
+        qDebug() << "Applying Dark Theme from QSS to Home";
+    }
+
+    QFile file(qssPath);
+    if (file.open(QFile::ReadOnly | QFile::Text)) {
+        QTextStream stream(&file);
+        QString styleSheet = stream.readAll();
+        if (qApp) { // qApp is a global pointer to the QApplication instance
+             qApp->setStyleSheet(styleSheet);
+        }
+        file.close();
+    } else {
+        qWarning() << "Could not load stylesheet:" << qssPath;
+    }
 }
 
 Home::~Home()

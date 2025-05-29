@@ -20,5 +20,7 @@
         <file>ressources/SpinBoxUpDisabled.svg</file>
         <file>ressources/TreeViewClose.svg</file>
         <file>ressources/TreeViewOpen.svg</file>
+        <file>ressources/themes/light.qss</file>
+        <file>ressources/themes/dark.qss</file>
     </qresource>
 </RCC>

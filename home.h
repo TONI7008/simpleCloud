@@ -2,6 +2,7 @@
 #define HOME_H
 
 #include "twidget.h"
+#include "tcloud.h" // For TCLOUD::Theme
 
 class mainThread;
 class TSecurityManager;
@@ -35,6 +36,9 @@ public:
 signals:
     void startLoading(const QString&);
     void stopLoading();
+
+private slots:
+    void applyAppTheme(TCLOUD::Theme theme);
 
 private:
     Ui::Home *ui;
