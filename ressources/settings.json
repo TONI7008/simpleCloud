@@ -1,0 +1,49 @@
+{
+    "TCloud": {
+        "setting_to_use": "default_setting",
+        "plan":"Basic Plan",
+        "path": "./TCloudSettings"
+    },
+    "default_setting": {
+        "Utilities": {
+            "delete_after_upload": true,
+            "delete_deleted_file_after": 10,
+            "enable_trash": true,
+            "download_limit": 5,
+            "download_speed_limit": 5,
+            "launch_on_startup": true,
+            "recycle_bin_max_size": 5,
+            "start_lazy_download_on_startup": true,
+            "synchronize_preferences": true,
+            "upload_limit": 5,
+            "upload_speed_limit": 5,
+            "automatically_delete_file_greater_than_5GB":true
+        },
+        "appareance": {
+            "enable_animation":false,
+            "animation_duration": 300,
+            "backgroundColor": "#479EF5",
+            "backgroundImage": ":/Icons/blur61.jpg",
+            "custom_background_color": false,
+            "custom_background_image": true,
+            "easing_curve": "QEasing::OutQuad",
+            "font_size": 13,
+            "font_style": "Noto Sans,13,-1,5,400,0,0,0,0,0,0,0,0,0,0,1",
+            "theme": "Dark",
+            "transparency":false
+        },
+        "notification": {
+            "enable_notification":true,
+            "disable_notification_page": false,
+            "notification_son": ":/songs/cloud.wav",
+            "popout_notification_page": true,
+            "use_system_notification_page": false,
+            "notification_volume":0.8,
+            "notification_duration":5000
+        },
+        "userSection": {
+            "change_user_data_path": false,
+            "user_data_path": "./TCloudSettings"
+        }
+    }
+}
