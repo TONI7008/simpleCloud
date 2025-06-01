@@ -23,7 +23,7 @@
             "enable_animation":false,
             "animation_duration": 300,
             "backgroundColor": "#479EF5",
-            "backgroundImage": ":/Icons/blur61.jpg",
+            "backgroundImage": ":/icons/blur61.jpg",
             "custom_background_color": false,
             "custom_background_image": true,
             "easing_curve": "QEasing::OutQuad",
