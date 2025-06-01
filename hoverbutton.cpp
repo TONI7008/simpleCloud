@@ -37,6 +37,8 @@ HoverButton::HoverButton(QWidget *parent) : QPushButton(parent), m_color(Qt::tra
     m_iconMap.insert("addfileButton", {QIcon(":/icons/addfilewhite.svg"), QIcon(":/icons/addfile.svg")});
     m_iconMap.insert("addfolderButton", {QIcon(":/icons/addfolderwhite.svg"), QIcon(":/icons/addfolder.svg")});
     m_iconMap.insert("logoutButton", {QIcon(":/icons/logoutwhite.svg"), QIcon(":/icons/logout.svg")});
+    m_iconMap.insert("saveButton", {QIcon(":/icons/savewhite.svg"), QIcon(":/icons/save.svg")});
+    m_iconMap.insert("saveButton_2", {QIcon(":/icons/savewhite.svg"), QIcon(":/icons/save.svg")});
 
 
     connect(this, &QToolButton::clicked, this, &HoverButton::handleClicked);

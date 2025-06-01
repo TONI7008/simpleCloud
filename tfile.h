@@ -61,6 +61,7 @@ private:
     void moveToTrash();
     void downloadFile();
     void openFile();
+    void restoreFile();
 
     eltCore core() override;
 };

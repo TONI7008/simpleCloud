@@ -28,11 +28,15 @@ public:
     void softRemove(TCloudElt *elt);
     void Clear();
     void setView(TCLOUD::View);
+
+    void sortSize(bool order=true);
+    void sortName(bool order=true);
+    void sortType(bool order=true);
+
     TGridLayout* getLayout(){
         return m_layout;
     }
 
-    void sort(QList<TCloudElt*> &liste, bool ordreCroissant);
 
     void clearSelection();
     void setPath(QString path);
@@ -89,6 +93,8 @@ private:
     QAction* m_sizeAction=nullptr;
 
     QString getMimeType(const QString &filePath);
+
+    void sortSize(QList<TCloudElt*> &liste, bool ordreCroissant);
     void sortName(QList<TCloudElt *> &liste, bool ordreCroissant);
     void sortType(QList<TCloudElt *> &liste, bool foldersFirst);
 };

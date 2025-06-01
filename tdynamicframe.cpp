@@ -11,6 +11,7 @@ QPushButton {
     color: white;
     font: 13pt "Segoe UI";
     border: none;
+    min-height: 32px;
 }
 
 QPushButton:hover {
@@ -21,7 +22,75 @@ QPushButton:hover {
 QPushButton:pressed {
     background-color: rgba(70, 158, 245, 0.6);
 }
+
+QPushButton#separator {
+    background: transparent;
+    border: none;
+    padding: 0;
+    min-width: 24px;
+    min-height: 24px;
+    border-radius: 0;
+}
+
+QPushButton#minimalButton {
+    min-width: 80px;
+    max-width: 200px;
+}
+
+QPushButton#breadcrumbButton {
+    min-width: 120px;
+    max-width: 300px;
+}
 )";
+
+// File: utils/image_utils.cpp
+
+QList<QColor> getDominantColors(const QString& imagePath, int colorCount = 2) {
+    QList<QColor> dominantColors;
+    QImage image(imagePath);
+
+    if (image.isNull()) {
+        qWarning() << "Failed to load image:" << imagePath;
+        return dominantColors;
+    }
+
+    const int step = qMax(1, qMin(image.width(), image.height()) / 100); // Downsample step
+    QHash<QRgb, int> colorFrequencies;
+
+    for (int y = 0; y < image.height(); y += step) {
+        for (int x = 0; x < image.width(); x += step) {
+            QColor color = image.pixelColor(x, y);
+
+            // Quantize to 4 bits per channel (16 levels per channel)
+            int r = (color.red() & 0xF0);
+            int g = (color.green() & 0xF0);
+            int b = (color.blue() & 0xF0);
+
+            QRgb quantized = qRgb(r, g, b);
+            colorFrequencies[quantized]++;
+        }
+    }
+
+    if (colorFrequencies.isEmpty()) {
+        qWarning() << "No colors found or empty image:" << imagePath;
+        return dominantColors;
+    }
+
+    QList<QPair<int, QRgb>> sortedFrequencies;
+    for (auto it = colorFrequencies.constBegin(); it != colorFrequencies.constEnd(); ++it) {
+        sortedFrequencies.append(qMakePair(it.value(), it.key()));
+    }
+
+    std::sort(sortedFrequencies.begin(), sortedFrequencies.end(), [](const QPair<int, QRgb>& a, const QPair<int, QRgb>& b) {
+        return a.first > b.first;
+    });
+
+    for (int i = 0; i < qMin(colorCount, sortedFrequencies.size()); ++i) {
+        dominantColors.append(QColor(sortedFrequencies[i].second));
+    }
+
+    return dominantColors;
+}
 
 HistoryDisplay::HistoryDisplay(QWidget* parent) : QWidget(parent)
 {
@@ -118,42 +187,6 @@ void HistoryDisplay::updateView()
     update();
 }
 
-/*void HistoryDisplay::createModernView()
-{
-    if (m_path.isEmpty()) return;
-
-    QStringList parts = m_path.split("/", Qt::SkipEmptyParts);
-    if (parts.isEmpty()) return;
-
-    // Add home button if path starts with special marker
-    if (m_path.startsWith(":")) {
-        m_layout->addWidget(m_homeButton);
-        m_homeButton->setVisible(true);
-        m_homeButton->setIcon(m_homeIcon);
-    }
-
-    for (int i = 1; i < parts.size(); ++i) {
-        QPushButton* pathButton = new QPushButton(parts[i], this);
-        pathButton->setStyleSheet(m_buttonStyle);
-        pathButton->setMinimumHeight(32);
-        pathButton->setProperty("fullPath", buildPartialPath(i));
-        connect(pathButton, &QPushButton::clicked,this, [this, pathButton]() {
-            emit pathClicked(pathButton->property("fullPath").toString());
-        });
-
-        m_layout->addWidget(pathButton);
-
-        // Add separator except after last item
-        if (i < parts.size() - 1) {
-            QPushButton* separator = new QPushButton(this);
-            separator->setStyleSheet("background: transparent; border: none;");
-            separator->setIcon(m_separatorIcon);
-            separator->setFixedSize(24, 24);
-            separator->setEnabled(false);
-            m_layout->addWidget(separator);
-        }
-    }
-}*/
 void HistoryDisplay::createModernView()
 {
     if (m_path.isEmpty()) return;
@@ -215,7 +248,7 @@ void HistoryDisplay::createNormalView()
     m_layout->addWidget(pathButton);
 }
 
-void HistoryDisplay::createMinimalView()
+/*void HistoryDisplay::createMinimalView()
 {
     if (m_path.isEmpty()) return;
 
@@ -251,7 +284,92 @@ void HistoryDisplay::createBreadcrumbView()
     });
 
     m_layout->addWidget(pathButton);
+}*/
+void HistoryDisplay::createBreadcrumbView()
+{
+    if (m_path.isEmpty()) return;
+
+    QStringList parts = m_path.split("/", Qt::SkipEmptyParts);
+    if (parts.isEmpty()) return;
+
+    if (m_path.startsWith(":")) {
+        m_layout->addWidget(m_homeButton);
+        m_homeButton->setVisible(true);
+        m_homeButton->setIcon(m_homeIcon);
+    }
+
+    const int maxVisibleParts = 4; // Show last N parts with separators
+    int startIdx = parts.size() > maxVisibleParts ? parts.size() - maxVisibleParts : 1;
+
+    if (startIdx > 1) {
+        QPushButton* ellipsis = new QPushButton("...", this);
+        ellipsis->setStyleSheet(m_buttonStyle);
+        ellipsis->setEnabled(false);
+        m_layout->addWidget(ellipsis);
+
+        QPushButton* separator = createSeparator();
+        m_layout->addWidget(separator);
+    }
+
+    for (int i = startIdx; i < parts.size(); ++i) {
+        QPushButton* pathButton = new QPushButton(parts[i], this);
+        pathButton->setObjectName("breadcrumbButton");
+        pathButton->setStyleSheet(m_buttonStyle);
+        pathButton->setProperty("fullPath", buildPartialPath(i));
+
+        connect(pathButton, &QPushButton::clicked, this, [this, pathButton]() {
+            emit pathClicked(pathButton->property("fullPath").toString());
+        });
+
+        m_layout->addWidget(pathButton);
+
+        if (i < parts.size() - 1) {
+            m_layout->addWidget(createSeparator());
+        }
+    }
 }
+
+void HistoryDisplay::createMinimalView()
+{
+    if (m_path.isEmpty()) return;
+
+    QStringList parts = m_path.split("/", Qt::SkipEmptyParts);
+    if (parts.isEmpty()) return;
+
+    if (m_path.startsWith(":")) {
+        m_layout->addWidget(m_homeButton);
+        m_homeButton->setVisible(true);
+        m_homeButton->setIcon(m_homeIcon);
+
+        QPushButton* separator = createSeparator();
+        m_layout->addWidget(separator);
+    }
+
+    QString displayText = parts.last();
+    if (displayText.isEmpty()) displayText = m_path;
+
+    QPushButton* pathButton = new QPushButton(displayText, this);
+    pathButton->setObjectName("minimalButton");
+    pathButton->setStyleSheet(m_buttonStyle);
+    pathButton->setProperty("fullPath", m_path);
+    pathButton->setToolTip(m_path);
+
+    connect(pathButton, &QPushButton::clicked, this, [this]() {
+        emit pathClicked(m_path);
+    });
+
+    m_layout->addWidget(pathButton);
+}
+
+QPushButton* HistoryDisplay::createSeparator()
+{
+    QPushButton* separator = new QPushButton(this);
+    separator->setObjectName("separator");
+    separator->setIcon(m_separatorIcon);
+    separator->setEnabled(false);
+    return separator;
+}
+
 
 void HistoryDisplay::clearLayout()
 {
@@ -281,6 +399,8 @@ QString HistoryDisplay::buildPartialPath(int index) const
     return result;
 }
 
+
+
 // TDynamicFrame implementation
 TDynamicFrame::TDynamicFrame(QWidget* parent) : PopoutFrame(parent)
 {
@@ -307,7 +427,7 @@ TDynamicFrame::TDynamicFrame(QWidget* parent) : PopoutFrame(parent)
     setPopoutMaxHeight(50);
 
     setBackgroundImage(":/pictures/image.png");
-    setBorder(false);
+    //setBorder(false);
 
     connect(m_stack,&TStackedWidget::animationFinished,this,[this]{
         popout(400,1.2);
@@ -351,6 +471,50 @@ void TDynamicFrame::setMessage(const QString &text)
 
 }
 
+QColor oppositeColor(const QColor &color) {
+    int r = 255 - color.red();
+    int g = 255 - color.green();
+    int b = 255 - color.blue();
+    int a = color.alpha();
+    return QColor(r, g, b, a);
+}
+
+void TDynamicFrame::setBackgroundImage(const QString &imgPath)
+{
+    QList<QColor> topColors = getDominantColors(imgPath, 3);
+    if (topColors.isEmpty()) {
+        qWarning() << "TDynamicFrame::setBackgroundImage: No dominant colors found for image" << imgPath;
+        return;
+    }
+    //QColor dominant=topColors.first();
+    //setBorderColor(oppositeColor(dominant));
+
+    QSize currentWidgetSize = size();
+    if (!currentWidgetSize.isValid() || currentWidgetSize.isEmpty()) {
+        qWarning() << "TDynamicFrame::setBackgroundImage: Invalid widget size ("
+                   << currentWidgetSize.width() << "x" << currentWidgetSize.height() << "). Using 1x1 fallback.";
+        currentWidgetSize = QSize(1, 1);
+    }
+
+    QPixmap gradientPixmap(currentWidgetSize);
+    gradientPixmap.fill(Qt::transparent);
+
+    QLinearGradient gradient(QPointF(0, 0), QPointF(currentWidgetSize.width(), currentWidgetSize.height()));
+
+    const int stopCount = topColors.size();
+    for (int i = 0; i < stopCount; ++i) {
+        QColor color = topColors[i];
+        color.setAlphaF(0.5);
+        qreal position = static_cast<qreal>(i) / (stopCount - 1);
+        gradient.setColorAt(position, color);
+    }
+
+    QPainter painter(&gradientPixmap);
+    painter.fillRect(gradientPixmap.rect(), gradient);
+    painter.end();
+
+    TFrame::setBackgroundImage(gradientPixmap);
+}
 
 MessageWidget::MessageWidget(QWidget *parent)
     : QWidget{parent}
@@ -359,6 +523,7 @@ MessageWidget::MessageWidget(QWidget *parent)
     m_label=new QLabel(this);
 
     m_label->setWordWrap(true);
+    //m_label->setSizePolicy();
     m_label->setAlignment(Qt::AlignHCenter);
 
     m_label->setText("Welcome to simpleCloud");

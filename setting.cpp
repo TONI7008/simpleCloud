@@ -4,6 +4,7 @@
 #include "settingmanager.h"
 #include "tgridlayout.h"
 #include "backgroundframe.h"
+#include "tmessagebox.h"
 
 QList<CustomToolButton*> toolList;
 
@@ -76,7 +77,9 @@ void printGridLayoutInfo(QGridLayout *layout) {
 
 
 void Setting::addBackground() {
-    QString filepath = QFileDialog::getOpenFileName(nullptr, "Choisir une image", "", "Images (*.png *.jpg *.jpeg)");
+    QFileDialog dialog;
+    dialog.setStyleSheet(" background: rgb(36, 38, 39);");
+    QString filepath = dialog.getOpenFileName(nullptr, "Choisir une image", "", "Images (*.png *.jpg *.jpeg)");
     emit startLoading("selecting image");
 
     if (filepath.isEmpty()) {
@@ -98,28 +101,29 @@ void Setting::addBackground() {
     connect(workerThread,&QThread::started,worker,&ImageWorker::run);
 
     connect(worker, &ImageWorker::imageReady, this, [this](const QString &fileName) {
-        BackgroundFrame* label = new BackgroundFrame(ui->backgroundDisplay);
-        label->setPixmap(QPixmap(fileName));
-        label->setText(fileName);
-        label->setBaseSize(160,80);
-        label->setSizePolicy(QSizePolicy::MinimumExpanding,QSizePolicy::Preferred);
+        BackgroundFrame* bFrame = new BackgroundFrame(ui->backgroundDisplay);
+        bFrame->setPixmap(QPixmap(fileName));
+        bFrame->setText(fileName);
+        bFrame->setMaximumSize(160,85);
+        //bFrame->setMinimumHeight(85);
+        bFrame->setSizePolicy(QSizePolicy::MinimumExpanding,QSizePolicy::Fixed);
 
-        labelLayout->addWidget(label);
+        labelLayout->addWidget(bFrame);
 
-        connect(label, &BackgroundFrame::Clicked, this, [=] {
+        connect(bFrame, &BackgroundFrame::Clicked, this, [=] {
             QFileInfo inf(fileName);
             ui->backgroundImageNameLabel->setText(inf.fileName());
             labelLayout->rearrangeWidgets();
         });
-        connect(label, &BackgroundFrame::kill, this, [label,this] {
-            labelLayout->removeWidgetAnimated(label);
+        connect(bFrame, &BackgroundFrame::kill, this, [bFrame,this] {
+            labelLayout->removeWidgetAnimated(bFrame);
         });
     });
 
     connect(workerThread, &QThread::finished, this, [this,worker, workerThread]() {
 
         emit stopLoading();
-        worker->deleteLater();
+        delete worker;
         workerThread->deleteLater();
     });
 
@@ -229,27 +233,27 @@ void Setting::loadNextBackgroundImage(int index)
     if (index >= backgroundList.size()) {
         return; // No more images to load, exit the function
     }
-    if(index>=5) return;
+    if(index>=7) return;
 
     // Create a new BackgroundFrame
-    BackgroundFrame *label = new BackgroundFrame(ui->backgroundDisplay);
+    BackgroundFrame *bFrame = new BackgroundFrame(ui->backgroundDisplay);
     QString path = backgroundList.at(index);
-    label->setText(path);
-    label->setMaximumSize(160,80);
-    label->setSizePolicy(QSizePolicy::MinimumExpanding,QSizePolicy::Fixed);
-    label->setPixmap(QPixmap(path));
+    bFrame->setText(path);
+    bFrame->setMaximumSize(160,80);
+    bFrame->setSizePolicy(QSizePolicy::MinimumExpanding,QSizePolicy::Fixed);
+    bFrame->setPixmap(QPixmap(path));
 
-    labelLayout->addWidget(label);
+    labelLayout->addWidget(bFrame);
 
     // Connect label click signal
-    connect(label, &BackgroundFrame::Clicked, this, [this, path] {
+    connect(bFrame, &BackgroundFrame::Clicked, this, [this, path] {
         QFileInfo fileInfo(path);
         ui->backgroundImageNameLabel->setText(fileInfo.baseName());
         labelLayout->rearrangeWidgets();
     });
 
-    connect(label, &BackgroundFrame::kill, this, [label, this] {
-        labelLayout->removeWidgetAnimated(label);
+    connect(bFrame, &BackgroundFrame::kill, this, [bFrame, this] {
+        labelLayout->removeWidgetAnimated(bFrame);
     });
 
 
@@ -446,7 +450,7 @@ void Setting::Init()
 {
     effect= new QSoundEffect(this);
 
-    ui->selectedColorFrame->SetSimpleType(true);
+    ui->selectedColorFrame->setSimpleType(true);
     addEasingCurvesToComboBox(ui->animationFunctionComboBox);
     ui->blurFrame->setVisible(ui->blurCheckBox->isChecked());
     connect(ui->blurCheckBox,&QCheckBox::clicked,ui->blurFrame,&QFrame::setVisible);
@@ -458,7 +462,7 @@ void Setting::Init()
         labelLayout->rearrangeWidgets();
     });
 
-    connect(ui->closesetting,&QToolButton::clicked,this,[&]{
+    connect(ui->closeButton,&QPushButton::clicked,this,[&]{
         Close();
     });
 
@@ -490,6 +494,7 @@ void Setting::Init()
                 ui->appareanceB->show();
                 ui->accountB->show();
                 ui->notificationB->show();
+                ui->saveButton_2->show();
 
             }
         }else{
@@ -504,6 +509,8 @@ void Setting::Init()
                 ui->appareanceB->hide();
                 ui->accountB->hide();
                 ui->notificationB->hide();
+                ui->saveButton_2->hide();
+
 
             }
         }
@@ -539,7 +546,6 @@ void Setting::Init()
     connect(ui->selectedColorFrame,&BackgroundFrame::Clicked,this,[&]{
         QColorDialog* colorDialog= new QColorDialog(this);
         connect(colorDialog, &QColorDialog::currentColorChanged, this, [&](QColor color){
-            ui->selectedColorFrame->SetSimpleType(true);
             color.setAlpha(transparency);
             m_color=color;
             ui->selectedColorFrame->setStyleSheet(QString("background:"+color.name(QColor::HexArgb)+";border:4px solid #479ef5;border-radius:10px;"));
@@ -551,11 +557,13 @@ void Setting::Init()
 
     });
     connect(ui->disableTrashCheck,&QCheckBox::clicked,ui->trashFrame,&QFrame::setVisible);
+    connect(ui->saveButton_2,&HoverButton::clicked,ui->saveButton,&HoverButton::click);
 
     ui->utilitiesB->hide();
     ui->appareanceB->hide();
     ui->accountB->hide();
     ui->notificationB->hide();
+    ui->saveButton_2->hide();
 
     ui->selectWidget->setOrientation(Qt::Vertical);
     ui->selectWidget->raise();
@@ -565,6 +573,23 @@ void Setting::Init()
         ui->blurLabel->setText(QString("%1%").arg(newValue*100/64));
     });
     connect(ui->enableNotifCheck,&QCheckBox::clicked,ui->notifAlertFrame,&QFrame::setVisible);
+
+    connect(ui->customBackgroundImageRadio,&QRadioButton::clicked,this,[this]{
+        if(m_Manager){
+            m_Manager->setCustomColor(false);
+            m_Manager->setCustomImage(true);
+        }
+        ui->backgroundImageFrame->show();
+        ui->backgroundColorFrame->hide();
+    });
+    connect(ui->customBackgroundColorRadio,&QRadioButton::clicked,this,[&]{
+        if(m_Manager){
+            m_Manager->setCustomColor(true);
+            m_Manager->setCustomImage(false);
+        }
+        ui->backgroundColorFrame->show();
+        ui->backgroundImageFrame->hide();
+    });
 
 }
 
@@ -576,7 +601,7 @@ void Setting::addLogic()
     });
 
     m_connections << connect(ui->fontSizeSpinBox,&QSpinBox::valueChanged,m_Manager,&SettingsManager::setFontSize);
-    m_connections << connect(ui->save,&QToolButton::clicked,this,[&]{
+    m_connections << connect(ui->saveButton,&QToolButton::clicked,this,[&]{
         m_Manager->save();
     });
     m_connections << connect(ui->playButton,&QPushButton::clicked,this,&Setting::play);
@@ -666,18 +691,6 @@ void Setting::addLogic()
     m_connections << connect(ui->popoutNotifPageButton,&ToggleButton::toggled,m_Manager,&SettingsManager::setPoppoutNotificationPage);
     m_connections << connect(ui->enableNotifCheck,&QCheckBox::clicked,m_Manager,&SettingsManager::setEnableNotification);
 
-    m_connections << connect(ui->customBackgroundImageRadio,&QRadioButton::clicked,this,[&]{
-        m_Manager->setCustomColor(false);
-        m_Manager->setCustomImage(true);
-        ui->backgroundImageFrame->show();
-        ui->backgroundColorFrame->hide();
-    });
-    m_connections << connect(ui->customBackgroundColorRadio,&QRadioButton::clicked,this,[&]{
-        m_Manager->setCustomColor(true);
-        m_Manager->setCustomImage(false);
-        ui->backgroundColorFrame->show();
-        ui->backgroundImageFrame->hide();
-    });
     m_connections << connect(ui->volumeSlider,&QSlider::valueChanged,this,[this](int value){
         m_Manager->setNotificationVolume(value/100.0);
         ui->volumeLabel->setText(QString("%1%").arg(value));
@@ -715,7 +728,7 @@ void Setting::Close()
     if (!m_Manager->edited()) {
         emit aboutToClose();
     } else {
-        QMessageBox msgBox(nullptr);
+        TMessageBox msgBox(nullptr);
         msgBox.setPalette(this->palette());
         msgBox.setText("The settings has been modified !");
         msgBox.setInformativeText("Do you want to save your changes?");

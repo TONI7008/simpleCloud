@@ -142,9 +142,9 @@ void TFileWidget::settingUp() {
     contextMenu->addMenu(viewMenu);
 
     QAction* copyAction = new QAction(QIcon(":/icons/copywhite.svg"), "Copy", selectionMenu);
-    QAction* cutAction = new QAction(QIcon(":/icons/deletewhite.svg"), "Cut", selectionMenu);
+    QAction* cutAction = new QAction(QIcon(":/icons/cutwhite.svg"), "Cut", selectionMenu);
     QAction* deleteAction = new QAction(QIcon(":/icons/deletewhite.svg"), "Delete", selectionMenu);
-    QAction* downloadAction = new QAction(QIcon(":/icons/copywhite.svg"), "Download", selectionMenu);
+    QAction* downloadAction = new QAction(QIcon(":/icons/downloadwhite.svg"), "Download", selectionMenu);
 
     m_sizeAction = new QAction("size",selectionMenu);
     m_sizeAction->setEnabled(false);
@@ -202,45 +202,15 @@ void TFileWidget::settingUp() {
         setView(TCLOUD::View::Grid);
     });
 
-    connect(sortbysizeAction, &QAction::triggered, this, [&](bool ascendant) {
-        QList<TCloudElt*> tempList = fileList;
-        sort(tempList, ascendant);
 
-        // Convert QList<TCloudElt*> to QList<QWidget*>
-        QList<QWidget*> widgetList;
-        for (TCloudElt* elt : std::as_const(tempList)) {
-            if (elt) widgetList.append(static_cast<QWidget*>(elt)); // Ensure it's a QWidget or derived
-        }
-
-        m_layout->addWidgetList(widgetList);
-        m_layout->rearrangeWidgets();
+    connect(sortbysizeAction,&QAction::triggered,this,[this](bool order){
+        m_Pfolder->setSortType(TFolder::Size,order);
     });
-
-    connect(sortbynameAction, &QAction::triggered, this, [&](bool order){
-        QList<TCloudElt*> tempList = fileList;
-        sortName(tempList,order);
-
-        // Convert QList<TCloudElt*> to QList<QWidget*>
-        QList<QWidget*> widgetList;
-        for (TCloudElt* elt : std::as_const(tempList)) {
-            if (elt) widgetList.append(static_cast<QWidget*>(elt)); // Ensure it's a QWidget or derived
-        }
-
-        m_layout->addWidgetList(widgetList);
-        m_layout->rearrangeWidgets();
+    connect(sortbyTypeAction,&QAction::triggered,this,[this](bool order){
+        m_Pfolder->setSortType(TFolder::Type,order);
     });
-    connect(sortbyTypeAction, &QAction::triggered, this, [&](bool order){
-        QList<TCloudElt*> tempList = fileList;
-        sortType(tempList,order);
-
-        // Convert QList<TCloudElt*> to QList<QWidget*>
-        QList<QWidget*> widgetList;
-        for (TCloudElt* elt : std::as_const(tempList)) {
-            if (elt) widgetList.append(static_cast<QWidget*>(elt)); // Ensure it's a QWidget or derived
-        }
-
-        m_layout->addWidgetList(widgetList);
-        m_layout->rearrangeWidgets();
+    connect(sortbynameAction,&QAction::triggered,this,[this](bool order){
+        m_Pfolder->setSortType(TFolder::Name,order);
     });
 
 
@@ -264,7 +234,7 @@ void TFileWidget::settingUp() {
     m_layout->setAlignment(align);
     m_layout->setEasingCurve(easing);
 
-    sortbynameAction->setChecked(true);
+    sortbyTypeAction->setChecked(true);
     gridAction->setChecked(true);
 }
 
@@ -517,7 +487,7 @@ TFile* TFileWidget::makeTempFrame(QString filename){
     return frame;
 }
 
-void TFileWidget::sort(QList<TCloudElt*>& liste, bool ordreCroissant) {
+void TFileWidget::sortSize(QList<TCloudElt*>& liste, bool ordreCroissant) {
     auto compare = [ordreCroissant](const TCloudElt* a, const TCloudElt* b) {
         qint64 sizeA = a->size(), sizeB = b->size();
         return ordreCroissant ? sizeA < sizeB : sizeA > sizeB;
@@ -590,6 +560,58 @@ void TFileWidget::setView(TCLOUD::View view) {
     } else {
         setGridView();
     }
+}
+
+void TFileWidget::sortSize(bool order)
+{
+    QList<TCloudElt*> tempList = fileList;
+    sortSize(tempList, order);
+
+    // Convert QList<TCloudElt*> to QList<QWidget*>
+    QList<QWidget*> widgetList;
+    for (TCloudElt* elt : std::as_const(tempList)) {
+        if (elt) widgetList.append(static_cast<QWidget*>(elt)); // Ensure it's a QWidget or derived
+    }
+
+    m_layout->addWidgetList(widgetList);
+    m_layout->rearrangeWidgets();
+
+    m_Pfolder->setSortType(TFolder::Size);
+
+}
+
+void TFileWidget::sortName(bool order)
+{
+    QList<TCloudElt*> tempList = fileList;
+    sortName(tempList,order);
+
+    // Convert QList<TCloudElt*> to QList<QWidget*>
+    QList<QWidget*> widgetList;
+    for (TCloudElt* elt : std::as_const(tempList)) {
+        if (elt) widgetList.append(static_cast<QWidget*>(elt)); // Ensure it's a QWidget or derived
+    }
+
+    m_layout->addWidgetList(widgetList);
+    m_layout->rearrangeWidgets();
+
+    m_Pfolder->setSortType(TFolder::Name);
+}
+
+void TFileWidget::sortType(bool order)
+{
+    QList<TCloudElt*> tempList = fileList;
+    sortType(tempList,order);
+
+    // Convert QList<TCloudElt*> to QList<QWidget*>
+    QList<QWidget*> widgetList;
+    for (TCloudElt* elt : std::as_const(tempList)) {
+        if (elt) widgetList.append(static_cast<QWidget*>(elt)); // Ensure it's a QWidget or derived
+    }
+
+    m_layout->addWidgetList(widgetList);
+    m_layout->rearrangeWidgets();
+
+    m_Pfolder->setSortType(TFolder::Type);
 }
 
 void TFileWidget::setLinearView() {

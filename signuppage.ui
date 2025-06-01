@@ -26,7 +26,8 @@ background:transparent;
 
 #signUpFrame {
 background:rgba(30,30,30,0.6);
-border-radius:15px;
+border-radius:20px;
+border:3px solid rgb(71,158,245);
 }
 QLineEdit {
     background: rgba(120, 120, 120, 0.5);
@@ -62,6 +63,124 @@ QPushButton:hover {
 QPushButton:pressed {
     background-color: rgba(70, 158, 245, 0.6);
 }
+QCheckBox,
+QLabel,
+QAbstractCheckBox,
+QTreeView::indicator,
+QRadioButton {
+    padding: 0px;
+    font-style: normal;
+}
+
+QCheckBox {
+    padding: 2px;
+}
+
+QGroupBox::indicator,
+QMenu::indicator,
+QCheckBox::indicator,
+QTreeView::indicator {
+    width: 15px;
+    height: 15px;
+    border-radius: 4px;
+    border: 1px solid #606060;
+    background-color: rgba(255, 255, 255, 0);
+    margin-right: 5px;
+}
+
+QGroupBox::indicator:hover,
+QMenu::indicator:hover,
+QCheckBox::indicator:hover,
+QTreeView::indicator:hover {
+    background-color: rgba(255, 255, 255, 16);
+}
+
+QGroupBox::indicator:pressed,
+QMenu::indicator:pressed,
+QCheckBox::indicator:pressed,
+QTreeView::indicator:pressed {
+    background-color: rgba(255, 255, 255, 20);
+    border: 1px solid #505050;
+}
+
+QGroupBox::indicator:checked,
+QMenu::indicator:checked,
+QCheckBox::indicator:checked,
+QTreeView::indicator:checked {
+    background-color: #60cdff;
+    border: 1px solid #60cdff;
+    image: url(:/ressources/CheckBox.svg);
+}
+
+QGroupBox::indicator:checked:hover,
+QMenu::indicator:checked:hover,
+QCheckBox::indicator:checked:hover,
+QTreeView::indicator:checked:hover {
+    background-color: #5abce8;
+    border: 1px solid #5abce8;
+}
+
+QGroupBox::indicator:checked:pressed,
+QMenu::indicator:checked:pressed,
+QCheckBox::indicator:checked:pressed,
+QTreeView::indicator:checked:pressed {
+    background-color: #53aad2;
+    border: 1px solid #53aad2;
+    image: url(:/ressources/CheckBoxPressed.svg);
+}
+
+QCheckBox::indicator:indeterminate,
+QGroupBox::indicator:indeterminate,
+QTreeView::indicator:indeterminate,
+QTableView::indicator:indeterminate {
+    background-color: #60cdff;
+    border: 1px solid #60cdff;
+    image: url(:/ressources/CheckBoxInterminate.svg);
+}
+
+QCheckBox::indicator:indeterminate:hover,
+QGroupBox::indicator:indeterminate:hover,
+QTreeView::indicator:indeterminate:hover,
+QTableView::indicator:indeterminate:hover {
+    background-color: #5abce8;
+    border: 1px solid #5abce8;
+}
+
+QCheckBox::indicator:indeterminate:pressed,
+QGroupBox::indicator:indeterminate:pressed,
+QTreeView::indicator:indeterminate:pressed,
+QTableView::indicator:indeterminate:pressed {
+    background-color: #53aad2;
+    border: 1px solid #53aad2;
+    image: url(:/ressources/CheckBoxInterminatePressed.svg);
+}
+
+QCheckBox::indicator:indeterminate:disabled,
+QGroupBox::indicator:indeterminate:disabled,
+QTreeView::indicator:indeterminate:disabled,
+QTableView::indicator:indeterminate:disabled {
+    border: 1px solid #404040;
+    background-color: #404040;
+    image: url(:/ressources/CheckBoxInterminatePressed.svg);
+}
+
+QGroupBox::indicator:checked:disabled,
+QMenu::indicator:checked:disabled,
+QCheckBox::indicator:checked:disabled,
+QTreeView::indicator:checked:disabled {
+    border: 1px solid #404040;
+    background-color: #404040;
+    image: url(:/ressources/CheckBoxPressed.svg); 
+}
+
+QGroupBox::indicator:disabled,
+QMenu::indicator:disabled,
+QCheckBox::indicator:disabled,
+QTreeView::indicator:disabled {
+    border: 1px solid #404040;
+    background-color: rgba(255, 255, 255, 0);
+}
+
 
 </string>
   </property>
@@ -172,124 +291,7 @@ QPushButton:pressed {
          <bool>false</bool>
         </property>
         <property name="styleSheet">
-         <string notr="true">QCheckBox,
-QLabel,
-QAbstractCheckBox,
-QTreeView::indicator,
-QRadioButton {
-    padding: 0px;
-    font-style: 12pt &quot;Noto Sans&quot;;
-	background:transparent;
-}
-
-QCheckBox {
-    padding: 2px;
-}
-
-QGroupBox::indicator,
-QMenu::indicator,
-QCheckBox::indicator,
-QTreeView::indicator {
-    width: 15px;
-    height: 15px;
-    border-radius: 4px;
-    border: 1px solid #606060;
-    background-color: rgba(255, 255, 255, 0);
-    margin-right: 5px;
-}
-
-QGroupBox::indicator:hover,
-QMenu::indicator:hover,
-QCheckBox::indicator:hover,
-QTreeView::indicator:hover {
-    background-color: rgba(255, 255, 255, 16);
-}
-
-QGroupBox::indicator:pressed,
-QMenu::indicator:pressed,
-QCheckBox::indicator:pressed,
-QTreeView::indicator:pressed {
-    background-color: rgba(255, 255, 255, 20);
-    border: 1px solid #505050;
-}
-
-QGroupBox::indicator:checked,
-QMenu::indicator:checked,
-QCheckBox::indicator:checked,
-QTreeView::indicator:checked {
-    background-color: #60cdff;
-    border: 1px solid #60cdff;
-    image: url(:/Ressources/CheckBox.svg);
-}
-
-QGroupBox::indicator:checked:hover,
-QMenu::indicator:checked:hover,
-QCheckBox::indicator:checked:hover,
-QTreeView::indicator:checked:hover {
-    background-color: #5abce8;
-    border: 1px solid #5abce8;
-}
-
-QGroupBox::indicator:checked:pressed,
-QMenu::indicator:checked:pressed,
-QCheckBox::indicator:checked:pressed,
-QTreeView::indicator:checked:pressed {
-    background-color: #53aad2;
-    border: 1px solid #53aad2;
-    image: url(:/Ressources/CheckBoxPressed.svg);
-}
-
-QCheckBox::indicator:indeterminate,
-QGroupBox::indicator:indeterminate,
-QTreeView::indicator:indeterminate,
-QTableView::indicator:indeterminate {
-    background-color: #60cdff;
-    border: 1px solid #60cdff;
-    image: url(:/Ressources/CheckBoxInterminate.svg);
-}
-
-QCheckBox::indicator:indeterminate:hover,
-QGroupBox::indicator:indeterminate:hover,
-QTreeView::indicator:indeterminate:hover,
-QTableView::indicator:indeterminate:hover {
-    background-color: #5abce8;
-    border: 1px solid #5abce8;
-}
-
-QCheckBox::indicator:indeterminate:pressed,
-QGroupBox::indicator:indeterminate:pressed,
-QTreeView::indicator:indeterminate:pressed,
-QTableView::indicator:indeterminate:pressed {
-    background-color: #53aad2;
-    border: 1px solid #53aad2;
-    image: url(:/Ressources/CheckBoxInterminatePressed.svg);
-}
-
-QCheckBox::indicator:indeterminate:disabled,
-QGroupBox::indicator:indeterminate:disabled,
-QTreeView::indicator:indeterminate:disabled,
-QTableView::indicator:indeterminate:disabled {
-    border: 1px solid #404040;
-    background-color: #404040;
-    image: url(:/Ressources/CheckBoxInterminatePressed.svg);
-}
-
-QGroupBox::indicator:checked:disabled,
-QMenu::indicator:checked:disabled,
-QCheckBox::indicator:checked:disabled,
-QTreeView::indicator:checked:disabled {
-    border: 1px solid #404040;
-    background-color: #404040;
-    image: url(:/Ressources/CheckBoxPressed.svg); 
-}
-
-QGroupBox::indicator:disabled,
-QMenu::indicator:disabled,
-QCheckBox::indicator:disabled,
-QTreeView::indicator:disabled {
-    border: 1px solid #404040;
-    background-color: rgba(255, 255, 255, 0);
-}</string>
+         <string notr="true"/>
         </property>
         <property name="text">
          <string>Show password</string>
@@ -354,11 +356,17 @@ QTreeView::indicator:disabled {
        </widget>
       </item>
       <item row="0" column="1">
-       <widget class="QToolButton" name="toolButton">
+       <widget class="HoverButton" name="closeButton">
         <property name="minimumSize">
          <size>
           <width>32</width>
           <height>32</height>
+         </size>
+        </property>
+        <property name="maximumSize">
+         <size>
+          <width>40</width>
+          <height>40</height>
          </size>
         </property>
         <property name="styleSheet">
@@ -385,6 +393,23 @@ border:none;</string>
    </item>
   </layout>
  </widget>
+ <customwidgets>
+  <customwidget>
+   <class>HoverButton</class>
+   <extends>QPushButton</extends>
+   <header>hoverbutton.h</header>
+  </customwidget>
+ </customwidgets>
+ <tabstops>
+  <tabstop>email</tabstop>
+  <tabstop>username</tabstop>
+  <tabstop>password</tabstop>
+  <tabstop>password2</tabstop>
+  <tabstop>showCheckbox</tabstop>
+  <tabstop>loginButton</tabstop>
+  <tabstop>signButton</tabstop>
+  <tabstop>closeButton</tabstop>
+ </tabstops>
  <resources>
   <include location="icons.qrc"/>
  </resources>

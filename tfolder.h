@@ -25,6 +25,12 @@ class TFolder : public TCloudElt
 {
     Q_OBJECT
 public:
+    enum SortType{
+        Name,
+        Size,
+        Type
+    };
+
     explicit TFolder(TFileInfo info, bool base=false,TFolder* pTFolder=nullptr,ThreadManager* t=nullptr,mainThread* mt=nullptr,TFileManager* fm=nullptr,QWidget *parent = nullptr);
     ~TFolder();
 
@@ -76,6 +82,9 @@ public:
     QVBoxLayout *favoriteLayout() const;
     void setFavoriteLayout(QVBoxLayout *newFavoriteLayout);
 
+    SortType sortType() const;
+    void setSortType(SortType newSortType,bool order=true);
+
 signals:
     void Zoom(TFolder* wid);
 
@@ -92,6 +101,8 @@ private:
     bool m_isZoomed=false;
     bool downloaded=false;
     bool hasBookmark=false;
+    SortType m_sortType=Size;
+
     QMap<QString, TFolder*> subFolders;
     QList<eltCore> m_eltList;
 
@@ -132,6 +143,7 @@ private:
     friend class TFileChecker;
 
     void settingUpMenu();
+
 };
 
 
@@ -158,6 +170,7 @@ inline QString initialStyleSheet = R"(QFrame{background:transparent;border:none;
     #m_labelName {background: transparent;color: white;border: none;font-size: 14px;}
 #m_scrollArea{background:transparent;border:none;}#folderIconView{background:transparent;border:none;}
 QFrame:hover {background:rgba(189,189,189,0.4);border-radius: 15px;border:1px solid rgb(71,158,245);})";
+
 inline QString selectedStyleSheet = R"(QFrame {background:rgba(189,189,189,0.4);border-radius: 15px;border:1px solid rgb(71,158,245);}
 QPushButton {background: transparent;border: none;}
 QPushButton:pressed {background: transparent;border: none;}

@@ -9,38 +9,45 @@
 #include <QPixmap>
 #include <QToolButton>
 
-class BackgroundFrame : public TFrame{
+class BackgroundFrame : public TFrame {
     Q_OBJECT
 public:
+    explicit BackgroundFrame(QWidget* parent = nullptr);
+    ~BackgroundFrame() override;
 
-
-    BackgroundFrame(QWidget* parent=nullptr);
-    ~BackgroundFrame();
     void setSelected(bool s);
-    bool isSelected() {return selected;}
+    bool isSelected() const { return selected; }
     void manage();
-    void setText(QString text);
-    void SetSimpleType(bool);
+    void setText(const QString& text);
+    void setSimpleType(bool simple);  // Renamed for consistency
+    void setPixmap(const QPixmap& pixmap);
+    QString text() const;
 
-    void setPixmap(QPixmap);
-    QString text();
-
+    static QList<BackgroundFrame*> instances();
     static QList<BackgroundFrame*> m_list;
 
 signals:
     void kill();
 
 private:
-    bool selected=false;
+    bool selected = false;
     QString m_text;
-    bool m_simpleType=false;
-
+    bool m_simpleType = false;
     QToolButton* deleteButton;
     QPixmap m_backgroundImage;
 
-    QString defaultStyle=R"(
-    QToolButton{border-radius:5px;background:rgba(30,30,30,0.4);}
-    QToolButton:hover{border-radius:5px;background:rgba(30,30,30,0.7);}
+    void updateAppearance();
+    void setupDeleteButton();
+
+    const QString defaultStyle = R"(
+        QToolButton {
+            border-radius: 5px;
+            background: rgba(30,30,30,0.4);
+        }
+        QToolButton:hover {
+            border-radius: 5px;
+            background: rgba(30,30,30,0.7);
+        }
     )";
 };
 

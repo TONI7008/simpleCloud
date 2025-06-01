@@ -7,7 +7,7 @@
 #include "mainthread.h"
 
 #include <QToolBar>
-#include<QMessageBox>
+#include "tmessagebox.h"
 
 loginPage::loginPage(mainThread* con,TStackedWidget* stack,QWidget *parent)
     : TWidget(parent)
@@ -18,7 +18,7 @@ loginPage::loginPage(mainThread* con,TStackedWidget* stack,QWidget *parent)
     ui->setupUi(this);
 
     setAttribute(Qt::WA_TranslucentBackground);
-    setEnableBackground(true);
+    setEnableBackground(false);
     setBackgroundImage(":/Images/image.png");
 
     setBorderRadius(15);
@@ -45,10 +45,10 @@ loginPage::loginPage(mainThread* con,TStackedWidget* stack,QWidget *parent)
 
     connect(ui->loginButton,&QPushButton::clicked,this,&loginPage::login);
     connect(ui->signButton,&QPushButton::clicked,this,[this]{
-        m_stack->setCurrentIndex(2);
+        m_stack->setCurrentIndex(4);
     });
 
-    connect(ui->toolButton,&QToolButton::clicked,this,[this]{
+    connect(ui->closeButton,&HoverButton::clicked,this,[this]{
         m_stack->parentWidget()->close();
     });
     connect(this,&TWidget::debugPressed,this,[this]{
@@ -77,13 +77,13 @@ void loginPage::login(){
     QString usr=ui->username->text();
     QString passw=ui->password->text();
     if(usr.isEmpty() || passw.isEmpty()){
-        QMessageBox b;
+        TMessageBox b;
         b.setAttribute(Qt::WA_TranslucentBackground);
         b.critical(this,"missing data","username or password not provided");
         b.show();
         return;
     }
-    emit startLoading("trying to log you in");
+    emit startLoading("Trying to log you in");
     m_thread->login(usr,passw);
 }
 

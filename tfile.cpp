@@ -1,8 +1,8 @@
 #include <QMessageBox>
 #include <QFileIconProvider>
 
-#include "tfile.h"
 #include "tfolder.h"
+#include "tfile.h"
 #include "tlabel.h"
 #include "tpushbutton.h"
 #include "tfilewidget.h"
@@ -41,7 +41,8 @@ TFile::TFile(TFolder* folder,TFileInfo info,QWidget* parent) : TCloudElt(parent)
     m_icon=getIcon();
     m_iconButton = new TPushButton(this);
     m_iconButton->setIcon(m_icon);
-    iconSize=QSize(80,80);
+    iconSize=QSize(100,80);
+    m_iconButton->setFixedSize(iconSize);
     m_iconButton->setIconSize(iconSize);
     m_iconButton->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
 
@@ -79,16 +80,8 @@ TFile::~TFile()
 }
 void TFile::settingUpSignals()
 {
-    connect(m_labelName, &TLabel::rightClicked, this, &TFile::rightClicked);
-    connect(m_iconButton, &TPushButton::rightClicked, this, &TFile::rightClicked);
-
-    connect(m_labelName, &TLabel::Clicked, this, &TFile::Clicked);
-    connect(m_labelName, &TLabel::ctrlSelected, this, &TFile::ctrlSelected);
-    connect(m_labelName, &TLabel::doubleClicked, this, &TFile::doubleClicked);
-
-    connect(m_iconButton, &TPushButton::Clicked, this, &TFile::Clicked);
-    connect(m_iconButton, &TPushButton::ctrlSelected, this, &TFile::ctrlSelected);
-    connect(m_iconButton, &TPushButton::doubleClicked, this, &TFile::doubleClicked);
+    m_labelName->setAttribute(Qt::WA_TransparentForMouseEvents);
+    m_iconButton->setAttribute(Qt::WA_TransparentForMouseEvents);
 
     connect(this, &TFrame::resizing, this, [this]{
         m_tFrame->setGeometry(contentsRect());
@@ -172,6 +165,21 @@ void TFile::openFile()
     }
 }
 
+void TFile::restoreFile()
+{
+    m_pFolder->getMainThread()->restoreFile(m_info.filepath);
+
+    connect(m_pFolder->getMainThread(), &mainThread::restoreSuccess, this, [this]{
+        disconnect(m_pFolder->getMainThread(), &mainThread::restoreSuccess, nullptr, nullptr);
+        m_pFolder->remove(this);
+    });
+
+    connect(m_pFolder->getMainThread(), &mainThread::restoreFailed, this, [this](QString error){
+        disconnect(m_pFolder->getMainThread(), &mainThread::restoreFailed, nullptr, nullptr);
+        qDebug() << "Error=" <<error;
+    });
+}
+
 
 void TFile::settingUpMenu()
 {
@@ -191,6 +199,7 @@ void TFile::settingUpMenu()
         m_deletedMenu->addAction(deleteAction);
 
         connect(deleteAction, &QAction::triggered, this,&TFile::deleteFile);
+        connect(restoreAction, &QAction::triggered, this,&TFile::restoreFile);
 
     }else{
         contextMenu=new TMenu(this);

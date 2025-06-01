@@ -3,7 +3,7 @@
 
 #include "mainthread.h"
 #include "tstackedwidget.h"
-#include "tcloud.h"
+#include "tmessagebox.h"
 
 
 SignUpPage::SignUpPage(mainThread* con,TStackedWidget* stack,QWidget *parent)
@@ -15,7 +15,7 @@ SignUpPage::SignUpPage(mainThread* con,TStackedWidget* stack,QWidget *parent)
     ui->setupUi(this);
 
     setAttribute(Qt::WA_TranslucentBackground);
-    setEnableBackground(true);
+    setEnableBackground(!true);
     setBackgroundImage(":/Images/image.png");
     setBorderRadius(15);
 
@@ -41,15 +41,12 @@ SignUpPage::SignUpPage(mainThread* con,TStackedWidget* stack,QWidget *parent)
         stop();
     });
     connect(ui->loginButton,&QPushButton::clicked,this,[this]{
-        m_stack->setCurrentIndex(1);
+        m_stack->setCurrentIndex(5);
     });
     connect(ui->signButton,&QPushButton::clicked,this,&SignUpPage::signUp);
 
-    connect(this,&TWidget::debugPressed,this,[this]{
-        m_stack->setCurrentIndex(3);
-    });
 
-    connect(ui->toolButton,&QToolButton::clicked,this,[this]{
+    connect(ui->closeButton,&QPushButton::clicked,this,[this]{
         m_stack->parentWidget()->close();
     });
 
@@ -76,14 +73,14 @@ void SignUpPage::signUp()
     QString passw=ui->password->text();
     QString email=ui->email->text();
     if(usr.isEmpty() || passw.isEmpty() || email.isEmpty()){
-        QMessageBox b;
+        TMessageBox b;
         b.setAttribute(Qt::WA_TranslucentBackground);
         b.critical(this,"missing data","username or password not provided");
         b.show();
         return;
     }
     if(ui->password2->text()!=passw){
-        QMessageBox b;
+        TMessageBox b;
         b.setAttribute(Qt::WA_TranslucentBackground);
         b.critical(this,"wrong password","passwords dont match");
         stop();

@@ -248,7 +248,7 @@ void TFileManager::back()
         available = false;
         m_timer->start(animTime);
         TFolder* previousTFolder = TFolder::FolderHistory[TFolder::currentFolderIndex];
-        emit pathChanged(previousTFolder->path());
+        if(TFolder::currentFolderIndex-1>=0) emit pathChanged(TFolder::FolderHistory[TFolder::currentFolderIndex-1]->path());
         TFolder::currentFolderIndex--;
         previousTFolder->setIconView();
     }

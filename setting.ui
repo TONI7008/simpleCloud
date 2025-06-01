@@ -6,13 +6,13 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>900</width>
-    <height>595</height>
+    <width>952</width>
+    <height>642</height>
    </rect>
   </property>
   <property name="minimumSize">
    <size>
-    <width>10</width>
+    <width>250</width>
     <height>0</height>
    </size>
   </property>
@@ -20,18 +20,17 @@
    <string>Form</string>
   </property>
   <property name="styleSheet">
-   <string notr="true">font: 13pt &quot;Noto Sans&quot;;
-
-QWidget{
+   <string notr="true">QWidget{
 /*border:1px solid pink;
 /*background:rgba(150,123,133,0.7);*/
 background: qlineargradient(spread:pad, x1:0, y1:1, x2:0, y2:0, stop:0 #302624, stop:1 #1d1410);/*cool red*/
 background: qlineargradient(spread:pad, x1:0, y1:1, x2:0, y2:0, stop:0 #cfd9df, stop:1 #e2ebf0);/*cool white*/
 background:rgba(243,243,243,0.7);
 background:#424242;
-background:rgb(104, 109, 118);
 background:transparent;
 border-radius:12px;
+font: 13pt &quot;Noto Sans&quot;;
+
 }
 /* QComboBox */
 QComboBox {
@@ -142,6 +141,131 @@ QSlider::add-page:horizontal, QSlider::sub-page:vertical {
     background-color: rgba(10, 10, 10, 0.8); /* Matches the groove background */
     border-radius: 2px;
 }
+
+QScrollArea {
+    border-radius: 15px;
+    color: #FFFFFF;
+    background: rgba(30, 30, 30, 0.6);
+}
+
+QScrollBar:vertical {
+    background: transparent;
+    width: 8px;
+    margin: 0 1px;
+}
+
+QScrollBar:vertical:hover,
+QScrollBar:vertical:pressed {
+    background: transparent;
+	margin: 0 0px;
+}
+
+QScrollBar::handle:vertical {
+    background-color: rgba(255, 255, 255, 130);
+    border-radius: 3px;
+    min-height: 25px;
+    margin: 10px 0;
+    width: 6px;
+}
+QScrollBar::handle:vertical:hover {
+    background-color: rgba(255, 255, 255, 130);
+    border-radius: 4px;
+    min-height: 25px;
+    margin: 10px 0;
+    width: 8px;
+}
+
+QScrollBar::sub-line:vertical {
+    image: url(:/ressources/up.svg);
+    height: 10px;
+    width: 10px;
+    subcontrol-position: top;
+    subcontrol-origin: content;
+}
+
+QScrollBar::sub-line:vertical:hover,
+QScrollBar::sub-line:vertical:pressed {
+    image: url(:/ressources/up.svg);
+}
+
+QScrollBar::add-line:vertical {
+    image: url(:/ressources/down.svg);
+    height: 12px;
+    width: 12px;
+    subcontrol-position: bottom;
+    subcontrol-origin: content;
+}
+
+QScrollBar::add-line:vertical:hover,
+QScrollBar::add-line:vertical:pressed {
+    image: url(:/ressources/down.svg);
+}
+
+QScrollBar::add-page:vertical,
+QScrollBar::sub-page:vertical {
+    background: none;
+}
+
+QScrollBar:horizontal {
+    background: transparent;
+    height: 8px;
+    margin: 1px 0;
+}
+
+QScrollBar:horizontal:hover,
+QScrollBar:horizontal:pressed {
+    background: transparent;
+	height:8px;
+	margin: 0 0;
+}
+
+QScrollBar::handle:horizontal {
+    background-color: rgba(255, 255, 255, 130);
+    border-radius: 3px;
+    min-width: 25px;
+    margin: 0 10px;
+    height: 7px;
+}
+QScrollBar::handle:horizontal:hover {
+    background-color: rgba(255, 255, 255, 130);
+    border-radius: 4px;
+    min-width: 25px;
+    margin: 0 10px;
+    height: 8px;
+}
+
+QScrollBar::sub-line:horizontal {
+    image: url(:/ressources/left.svg);
+    width: 12px;
+    height: 12px;
+    subcontrol-position: left;
+    subcontrol-origin: content;
+}
+
+QScrollBar::sub-line:horizontal:hover,
+QScrollBar::sub-line:horizontal:pressed {
+    image: url(:/ressources/left.svg);
+}
+
+QScrollBar::add-line:horizontal {
+    image: url(:/ressources/right.svg);
+    width: 10px;
+    height: 10px;
+    subcontrol-position: right;
+    subcontrol-origin: content;
+}
+
+QScrollBar::add-line:horizontal:hover,
+QScrollBar::add-line:horizontal:pressed {
+    image: url(:/ressources/right.svg);
+}
+
+QScrollBar::add-page:horizontal,
+QScrollBar::sub-page:horizontal {
+    background: none;
+}
+
+
 #showpanelButton{
 border-radius:10px;
 background-color: rgba(120,120,120,0.4);
@@ -151,43 +275,8 @@ padding-right:10px;
 }
 #showpanelButton:hover{
 background: qLineargradient( x1: 0, y1: 0, x2: 0, y2: 1, stop: 0 rgba(13, 112, 210, 0.5), stop: 1.0 rgba(0, 79, 204, 0.5));
-}</string>
-  </property>
-  <layout class="QGridLayout" name="gridLayout">
-   <property name="leftMargin">
-    <number>5</number>
-   </property>
-   <property name="topMargin">
-    <number>5</number>
-   </property>
-   <property name="rightMargin">
-    <number>5</number>
-   </property>
-   <property name="bottomMargin">
-    <number>6</number>
-   </property>
-   <property name="spacing">
-    <number>5</number>
-   </property>
-   <item row="1" column="1" rowspan="2" colspan="4">
-    <widget class="TStackedWidget" name="stackedWidget">
-     <property name="styleSheet">
-      <string notr="true">QStackedWidget{
-border-radius:15px;
-background:transparent;
 }
 
-</string>
-     </property>
-     <property name="currentIndex">
-      <number>0</number>
-     </property>
-     <widget class="QWidget" name="appareancePage">
-      <property name="styleSheet">
-       <string notr="true">QWidget{
-border-radius:15px;
-background:transparent;
-}
 QSpinBox {
     background-color: rgba(255, 255, 255, 10);
     border: 1px solid rgba(255, 255, 255, 8);
@@ -318,6 +407,168 @@ QRadioButton::indicator:disabled {
     border: 1px solid #646464;
     background-color: rgba(255, 255, 255, 0);
 }
+
+QCheckBox,
+QLabel,
+QAbstractCheckBox,
+QTreeView::indicator,
+QRadioButton {
+    padding: 0px;
+    font-style: normal;
+}
+
+QCheckBox {
+    padding: 2px;
+}
+
+QGroupBox::indicator,
+QMenu::indicator,
+QCheckBox::indicator,
+QTreeView::indicator {
+    width: 15px;
+    height: 15px;
+    border-radius: 4px;
+    border: 1px solid #606060;
+    background-color: rgba(255, 255, 255, 0);
+    margin-right: 5px;
+}
+
+QGroupBox::indicator:hover,
+QMenu::indicator:hover,
+QCheckBox::indicator:hover,
+QTreeView::indicator:hover {
+    background-color: rgba(255, 255, 255, 16);
+}
+
+QGroupBox::indicator:pressed,
+QMenu::indicator:pressed,
+QCheckBox::indicator:pressed,
+QTreeView::indicator:pressed {
+    background-color: rgba(255, 255, 255, 20);
+    border: 1px solid #505050;
+}
+
+QGroupBox::indicator:checked,
+QMenu::indicator:checked,
+QCheckBox::indicator:checked,
+QTreeView::indicator:checked {
+    background-color: #60cdff;
+    border: 1px solid #60cdff;
+    image: url(:/ressources/CheckBox.svg);
+}
+
+QGroupBox::indicator:checked:hover,
+QMenu::indicator:checked:hover,
+QCheckBox::indicator:checked:hover,
+QTreeView::indicator:checked:hover {
+    background-color: #5abce8;
+    border: 1px solid #5abce8;
+}
+
+QGroupBox::indicator:checked:pressed,
+QMenu::indicator:checked:pressed,
+QCheckBox::indicator:checked:pressed,
+QTreeView::indicator:checked:pressed {
+    background-color: #53aad2;
+    border: 1px solid #53aad2;
+    image: url(:/ressources/CheckBoxPressed.svg);
+}
+
+QCheckBox::indicator:indeterminate,
+QGroupBox::indicator:indeterminate,
+QTreeView::indicator:indeterminate,
+QTableView::indicator:indeterminate {
+    background-color: #60cdff;
+    border: 1px solid #60cdff;
+    image: url(:/ressources/CheckBoxInterminate.svg);
+}
+
+QCheckBox::indicator:indeterminate:hover,
+QGroupBox::indicator:indeterminate:hover,
+QTreeView::indicator:indeterminate:hover,
+QTableView::indicator:indeterminate:hover {
+    background-color: #5abce8;
+    border: 1px solid #5abce8;
+}
+
+QCheckBox::indicator:indeterminate:pressed,
+QGroupBox::indicator:indeterminate:pressed,
+QTreeView::indicator:indeterminate:pressed,
+QTableView::indicator:indeterminate:pressed {
+    background-color: #53aad2;
+    border: 1px solid #53aad2;
+    image: url(:/ressources/CheckBoxInterminatePressed.svg);
+}
+
+QCheckBox::indicator:indeterminate:disabled,
+QGroupBox::indicator:indeterminate:disabled,
+QTreeView::indicator:indeterminate:disabled,
+QTableView::indicator:indeterminate:disabled {
+    border: 1px solid #404040;
+    background-color: #404040;
+    image: url(:/ressources/CheckBoxInterminatePressed.svg);
+}
+
+QGroupBox::indicator:checked:disabled,
+QMenu::indicator:checked:disabled,
+QCheckBox::indicator:checked:disabled,
+QTreeView::indicator:checked:disabled {
+    border: 1px solid #404040;
+    background-color: #404040;
+    image: url(:/ressources/CheckBoxPressed.svg); 
+}
+
+QGroupBox::indicator:disabled,
+QMenu::indicator:disabled,
+QCheckBox::indicator:disabled,
+QTreeView::indicator:disabled {
+    border: 1px solid #404040;
+    background-color: rgba(255, 255, 255, 0);
+}
+
+</string>
+  </property>
+  <layout class="QGridLayout" name="gridLayout">
+   <property name="leftMargin">
+    <number>5</number>
+   </property>
+   <property name="topMargin">
+    <number>5</number>
+   </property>
+   <property name="rightMargin">
+    <number>5</number>
+   </property>
+   <property name="bottomMargin">
+    <number>6</number>
+   </property>
+   <property name="spacing">
+    <number>5</number>
+   </property>
+   <item row="1" column="1" rowspan="2" colspan="4">
+    <widget class="TStackedWidget" name="stackedWidget">
+     <property name="styleSheet">
+      <string notr="true">QStackedWidget{
+border-radius:18px;
+background:transparent;
+border:none;
+}
+
+</string>
+     </property>
+     <property name="currentIndex">
+      <number>2</number>
+     </property>
+     <widget class="QWidget" name="appareancePage">
+      <property name="styleSheet">
+       <string notr="true">#appareancePage{
+border-radius:18px;
+background:rgba(30,30,30,0.6);
+}
+QFrame{
+background:transparent;
+border:none;
+}
+
 QComboBox {
     background-color: rgba(255, 255, 255, 18);
     border-radius: 5px;
@@ -326,8 +577,7 @@ QComboBox {
     padding-bottom: 6px;
 }
 
-QGroupBox
-QComboBox {
+QGroupBox QComboBox {
     padding-top: 6px;
     padding-bottom: 6px;
 }
@@ -336,17 +586,17 @@ QComboBox:hover {
     background-color: rgba(255, 255, 255, 23);
 }
 
+/* Modify these values to change the icon size */
 QComboBox::down-arrow {
     image: url(:/ressources/ComboBox.svg);
-    width: 40px;
-    height: 40px;
+    width: 24px;  /* Changed from 40px */
+    height: 24px; /* Changed from 40px */
     margin-left: 15px;
 }
 
-QGroupBox
-QComboBox::down-arrow {
-    width: 38px;
-    height: 40px;
+QGroupBox QComboBox::down-arrow {
+    width: 24px;  /* Changed from 38px */
+    height: 24px; /* Changed from 40px */
 }
 
 QComboBox::drop-down {
@@ -371,7 +621,6 @@ QComboBox QAbstractItemView {
     selection-background-color: rgba(255, 255, 255, 16);
     padding: 4px;
 }
-
 </string>
       </property>
       <layout class="QGridLayout" name="gridLayout_2">
@@ -393,62 +642,7 @@ QComboBox QAbstractItemView {
        <item row="0" column="0">
         <widget class="QScrollArea" name="scrollArea">
          <property name="styleSheet">
-          <string notr="true">QScrollArea {
-    border-radius: 15px;
-    color: #FFFFFF; /* Couleur du texte */
-   background:rgba(31, 31, 31,0.9);
-}
-
-QScrollBar:vertical {
-    border: 6px solid rgba(255, 255, 255, 0);
-    background-color: transparent;
-    margin: 0px 0px 0px 0px;
-    width: 16px;
-}
-
-QScrollBar:vertical:hover {
-    border: 5px solid rgba(255, 255, 255, 0);
-}
-
-QScrollBar::handle:vertical {
-    background-color: rgba(255, 255, 255, 130);
-    border-radius: 2px;
-    min-height: 25px;
-}
-
-QScrollBar::sub-line:vertical {
-    image: url(:/resources/ScrollBar.png);
-    subcontrol-position: top;
-    subcontrol-origin: margin;
-}
-
-QScrollBar::sub-line:vertical:hover {
-    image: url(:/resources/ScrollBar.png);
-}
-
-QScrollBar::sub-line:vertical:pressed {
-    image: url(:/resources/ScrollBar.png);
-}
-
-QScrollBar::add-line:vertical {
-    image: url(:/resources/ScrollBar.png);
-    subcontrol-position: bottom;
-    subcontrol-origin: margin;
-}
-
-QScrollBar::add-line:vertical:hover {
-    image: url(:/resources/ScrollBar.png);
-}
-
-QScrollBar::add-line:vertical:pressed {
-    image: url(:/resources/ScrollBar.png);
-}
-
-QScrollBar::add-page:vertical, QScrollBar::sub-page:vertical {
-    background: none;
-}
-
-QPushButton{
+          <string notr="true">QPushButton{
 border-radius:8px;
 background-color: rgba(120,120,120,0.4);
 padding-left:10px;
@@ -480,9 +674,9 @@ color: rgb(255, 255, 255);
           <property name="geometry">
            <rect>
             <x>0</x>
-            <y>-472</y>
-            <width>665</width>
-            <height>1255</height>
+            <y>0</y>
+            <width>640</width>
+            <height>1257</height>
            </rect>
           </property>
           <layout class="QGridLayout" name="gridLayout_3">
@@ -532,7 +726,7 @@ background-color:rgba(250,250,200,0.6);
 background:rgba(55, 58, 64,0.7);
 border-radius:15px;
 background:rgba(16, 51, 76, 0.7);
-background:rgba(31, 31, 31,0.8);
+background:rgba(30,30,30,0.75);
 }
 QLabel{
 background:transparent;
@@ -548,132 +742,7 @@ background:transparent;
               <property name="verticalSpacing">
                <number>11</number>
               </property>
-              <item row="1" column="0">
-               <widget class="QLabel" name="label_18">
-                <property name="minimumSize">
-                 <size>
-                  <width>0</width>
-                  <height>40</height>
-                 </size>
-                </property>
-                <property name="text">
-                 <string>Choose background :</string>
-                </property>
-               </widget>
-              </item>
-              <item row="8" column="2">
-               <widget class="QPushButton" name="resetBackgroundImage">
-                <property name="minimumSize">
-                 <size>
-                  <width>0</width>
-                  <height>20</height>
-                 </size>
-                </property>
-                <property name="styleSheet">
-                 <string notr="true"/>
-                </property>
-                <property name="text">
-                 <string>Reset background</string>
-                </property>
-               </widget>
-              </item>
-              <item row="8" column="0">
-               <widget class="QPushButton" name="applyImage">
-                <property name="minimumSize">
-                 <size>
-                  <width>0</width>
-                  <height>20</height>
-                 </size>
-                </property>
-                <property name="styleSheet">
-                 <string notr="true"/>
-                </property>
-                <property name="text">
-                 <string>Apply</string>
-                </property>
-               </widget>
-              </item>
-              <item row="2" column="0" colspan="3">
-               <widget class="QScrollArea" name="backgroundScroll">
-                <property name="minimumSize">
-                 <size>
-                  <width>0</width>
-                  <height>350</height>
-                 </size>
-                </property>
-                <property name="styleSheet">
-                 <string notr="true">QScrollArea {
-    border-radius: 15px;
-    color: #FFFFFF; /* Couleur du texte */
-   background:transparent;
-}
-QScrollBar:vertical {
-    border: 6px solid rgba(255, 255, 255, 0);
-    background-color: transparent;
-    margin: 0px 0px 0px 0px;
-    width: 16px;
-}
-
-QScrollBar:vertical:hover {
-    border: 5px solid rgba(255, 255, 255, 0);
-}
-
-QScrollBar::handle:vertical {
-    background-color: rgba(255, 255, 255, 130);
-    border-radius: 2px;
-    min-height: 25px;
-}
-
-QScrollBar::sub-line:vertical {
-    image: url(:/resources/ScrollBar.png);
-    subcontrol-position: top;
-    subcontrol-origin: margin;
-}
-
-QScrollBar::sub-line:vertical:hover {
-    image: url(:/resources/ScrollBar.png);
-}
-
-QScrollBar::sub-line:vertical:pressed {
-    image: url(:/resources/ScrollBar.png);
-}
-
-QScrollBar::add-line:vertical {
-    image: url(:/resources/ScrollBar.png);
-    subcontrol-position: bottom;
-    subcontrol-origin: margin;
-}
-
-QScrollBar::add-line:vertical:hover {
-    image: url(:/resources/ScrollBar.png);
-}
-
-QScrollBar::add-line:vertical:pressed {
-    image: url(:/resources/ScrollBar.png);
-}
-
-QScrollBar::add-page:vertical, QScrollBar::sub-page:vertical {
-    background: none;
-}
-
-</string>
-                </property>
-                <property name="widgetResizable">
-                 <bool>true</bool>
-                </property>
-                <widget class="TWidget" name="backgroundDisplay">
-                 <property name="geometry">
-                  <rect>
-                   <x>0</x>
-                   <y>0</y>
-                   <width>629</width>
-                   <height>379</height>
-                  </rect>
-                 </property>
-                </widget>
-               </widget>
-              </item>
-              <item row="8" column="1">
+              <item row="7" column="1">
                <widget class="QPushButton" name="addBackgroundImage">
                 <property name="minimumSize">
                  <size>
@@ -696,7 +765,23 @@ QScrollBar::add-page:vertical, QScrollBar::sub-page:vertical {
                 </property>
                </widget>
               </item>
-              <item row="7" column="0" colspan="3">
+              <item row="7" column="0">
+               <widget class="QPushButton" name="applyImage">
+                <property name="minimumSize">
+                 <size>
+                  <width>0</width>
+                  <height>20</height>
+                 </size>
+                </property>
+                <property name="styleSheet">
+                 <string notr="true"/>
+                </property>
+                <property name="text">
+                 <string>Apply</string>
+                </property>
+               </widget>
+              </item>
+              <item row="6" column="0" colspan="3">
                <widget class="QFrame" name="blurFrame">
                 <property name="minimumSize">
                  <size>
@@ -765,7 +850,49 @@ QScrollBar::add-page:vertical, QScrollBar::sub-page:vertical {
                 </layout>
                </widget>
               </item>
-              <item row="6" column="0" colspan="3">
+              <item row="7" column="2">
+               <widget class="QPushButton" name="resetBackgroundImage">
+                <property name="minimumSize">
+                 <size>
+                  <width>0</width>
+                  <height>20</height>
+                 </size>
+                </property>
+                <property name="styleSheet">
+                 <string notr="true"/>
+                </property>
+                <property name="text">
+                 <string>Reset background</string>
+                </property>
+               </widget>
+              </item>
+              <item row="2" column="0" colspan="3">
+               <widget class="QScrollArea" name="backgroundScroll">
+                <property name="minimumSize">
+                 <size>
+                  <width>0</width>
+                  <height>350</height>
+                 </size>
+                </property>
+                <property name="styleSheet">
+                 <string notr="true"/>
+                </property>
+                <property name="widgetResizable">
+                 <bool>true</bool>
+                </property>
+                <widget class="TWidget" name="backgroundDisplay">
+                 <property name="geometry">
+                  <rect>
+                   <x>0</x>
+                   <y>0</y>
+                   <width>604</width>
+                   <height>379</height>
+                  </rect>
+                 </property>
+                </widget>
+               </widget>
+              </item>
+              <item row="5" column="0" colspan="3">
                <widget class="QCheckBox" name="blurCheckBox">
                 <property name="minimumSize">
                  <size>
@@ -787,6 +914,7 @@ QTreeView::indicator,
 QRadioButton {
     padding: 0px;
     font-style: normal;
+	background:transparent;
 }
 
 QCheckBox {
@@ -904,6 +1032,19 @@ QTreeView::indicator:disabled {
                 </property>
                 <property name="checked">
                  <bool>false</bool>
+                </property>
+               </widget>
+              </item>
+              <item row="1" column="0">
+               <widget class="QLabel" name="label_18">
+                <property name="minimumSize">
+                 <size>
+                  <width>0</width>
+                  <height>40</height>
+                 </size>
+                </property>
+                <property name="text">
+                 <string>Choose background :</string>
                 </property>
                </widget>
               </item>
@@ -1069,7 +1210,7 @@ QTreeView::indicator:disabled {
             <widget class="QSpinBox" name="animationDurationSpinBox">
              <property name="minimumSize">
               <size>
-               <width>72</width>
+               <width>74</width>
                <height>0</height>
               </size>
              </property>
@@ -1179,31 +1320,6 @@ background: qLineargradient( x1: 0, y1: 0, x2: 0, y2: 1, stop: 0 rgba(13, 112, 2
                 </property>
                </widget>
               </item>
-              <item row="1" column="1" colspan="2">
-               <widget class="QSlider" name="transparencySlider">
-                <property name="minimumSize">
-                 <size>
-                  <width>0</width>
-                  <height>40</height>
-                 </size>
-                </property>
-                <property name="styleSheet">
-                 <string notr="true"/>
-                </property>
-                <property name="maximum">
-                 <number>255</number>
-                </property>
-                <property name="pageStep">
-                 <number>5</number>
-                </property>
-                <property name="value">
-                 <number>200</number>
-                </property>
-                <property name="orientation">
-                 <enum>Qt::Orientation::Horizontal</enum>
-                </property>
-               </widget>
-              </item>
               <item row="0" column="1" colspan="2">
                <widget class="QLabel" name="colorLabel">
                 <property name="maximumSize">
@@ -1266,6 +1382,31 @@ border:3px solid black;
                 </property>
                </widget>
               </item>
+              <item row="1" column="1" colspan="3">
+               <widget class="QSlider" name="transparencySlider">
+                <property name="minimumSize">
+                 <size>
+                  <width>0</width>
+                  <height>40</height>
+                 </size>
+                </property>
+                <property name="styleSheet">
+                 <string notr="true"/>
+                </property>
+                <property name="maximum">
+                 <number>255</number>
+                </property>
+                <property name="pageStep">
+                 <number>5</number>
+                </property>
+                <property name="value">
+                 <number>200</number>
+                </property>
+                <property name="orientation">
+                 <enum>Qt::Orientation::Horizontal</enum>
+                </property>
+               </widget>
+              </item>
              </layout>
             </widget>
            </item>
@@ -1323,7 +1464,7 @@ border:3px solid black;
       <property name="styleSheet">
        <string notr="true">QWidget{
 border-radius:15px;
-background:rgba(30,30,30,0.8);
+background:rgba(30,30,30,0.6);
 }
 QLabel{
 background:transparent;
@@ -1335,6 +1476,7 @@ QTreeView::indicator,
 QRadioButton {
     padding: 0px;
     font-style: normal;
+background:transparent
 }
 
 QCheckBox {
@@ -1797,129 +1939,11 @@ QComboBox QAbstractItemView {
      </widget>
      <widget class="QWidget" name="utilitiesPage">
       <property name="styleSheet">
-       <string notr="true">QWidget{
-border-radius:15px;
-background:rgba(30,30,30,0.8);
-background:rgba(60, 41, 32,0.7);
+       <string notr="true">#utilitiesPage{
+border-radius:18px;
 background:transparent;
 }
-QCheckBox,
-QLabel,
-QAbstractCheckBox,
-QTreeView::indicator,
-QRadioButton {
-    padding: 0px;
-    font-style: normal;
-}
-
-QCheckBox {
-    padding: 2px;
-}
-
-QGroupBox::indicator,
-QMenu::indicator,
-QCheckBox::indicator,
-QTreeView::indicator {
-    width: 15px;
-    height: 15px;
-    border-radius: 4px;
-    border: 1px solid #606060;
-    background-color: rgba(255, 255, 255, 0);
-    margin-right: 5px;
-}
-
-QGroupBox::indicator:hover,
-QMenu::indicator:hover,
-QCheckBox::indicator:hover,
-QTreeView::indicator:hover {
-    background-color: rgba(255, 255, 255, 16);
-}
-
-QGroupBox::indicator:pressed,
-QMenu::indicator:pressed,
-QCheckBox::indicator:pressed,
-QTreeView::indicator:pressed {
-    background-color: rgba(255, 255, 255, 20);
-    border: 1px solid #505050;
-}
-
-QGroupBox::indicator:checked,
-QMenu::indicator:checked,
-QCheckBox::indicator:checked,
-QTreeView::indicator:checked {
-    background-color: #60cdff;
-    border: 1px solid #60cdff;
-    image: url(:/ressources/CheckBox.svg);
-}
-
-QGroupBox::indicator:checked:hover,
-QMenu::indicator:checked:hover,
-QCheckBox::indicator:checked:hover,
-QTreeView::indicator:checked:hover {
-    background-color: #5abce8;
-    border: 1px solid #5abce8;
-}
-
-QGroupBox::indicator:checked:pressed,
-QMenu::indicator:checked:pressed,
-QCheckBox::indicator:checked:pressed,
-QTreeView::indicator:checked:pressed {
-    background-color: #53aad2;
-    border: 1px solid #53aad2;
-    image: url(:/ressources/CheckBoxPressed.svg);
-}
-
-QCheckBox::indicator:indeterminate,
-QGroupBox::indicator:indeterminate,
-QTreeView::indicator:indeterminate,
-QTableView::indicator:indeterminate {
-    background-color: #60cdff;
-    border: 1px solid #60cdff;
-    image: url(:/ressources/CheckBoxInterminate.svg);
-}
-
-QCheckBox::indicator:indeterminate:hover,
-QGroupBox::indicator:indeterminate:hover,
-QTreeView::indicator:indeterminate:hover,
-QTableView::indicator:indeterminate:hover {
-    background-color: #5abce8;
-    border: 1px solid #5abce8;
-}
-
-QCheckBox::indicator:indeterminate:pressed,
-QGroupBox::indicator:indeterminate:pressed,
-QTreeView::indicator:indeterminate:pressed,
-QTableView::indicator:indeterminate:pressed {
-    background-color: #53aad2;
-    border: 1px solid #53aad2;
-    image: url(:/ressources/CheckBoxInterminatePressed.svg);
-}
-
-QCheckBox::indicator:indeterminate:disabled,
-QGroupBox::indicator:indeterminate:disabled,
-QTreeView::indicator:indeterminate:disabled,
-QTableView::indicator:indeterminate:disabled {
-    border: 1px solid #404040;
-    background-color: #404040;
-    image: url(:/ressources/CheckBoxInterminatePressed.svg);
-}
-
-QGroupBox::indicator:checked:disabled,
-QMenu::indicator:checked:disabled,
-QCheckBox::indicator:checked:disabled,
-QTreeView::indicator:checked:disabled {
-    border: 1px solid #404040;
-    background-color: #404040;
-    image: url(:/ressources/CheckBoxPressed.svg); 
-}
-
-QGroupBox::indicator:disabled,
-QMenu::indicator:disabled,
-QCheckBox::indicator:disabled,
-QTreeView::indicator:disabled {
-    border: 1px solid #404040;
-    background-color: rgba(255, 255, 255, 0);
-}</string>
+</string>
       </property>
       <layout class="QGridLayout" name="gridLayout_7">
        <property name="leftMargin">
@@ -1937,146 +1961,7 @@ QTreeView::indicator:disabled {
        <item row="0" column="0">
         <widget class="QScrollArea" name="scrollArea_2">
          <property name="styleSheet">
-          <string notr="true">QSpinBox {
-    background-color: rgba(255, 255, 255, 10);
-    border: 1px solid rgba(255, 255, 255, 8);
-    border-radius: 5px;
-    padding-left: 10px;
-    padding-top: 6px;
-    padding-bottom: 6px;
-    min-width: 60px;
-    border-bottom: 1px solid #707070;
-}
-
-QSpinBox:hover {
-    background-color: rgba(255, 255, 255, 16);
-    border: 1px solid rgba(255, 255, 255, 10);
-    border-bottom: 1px solid #707070;
-}
-
-QSpinBox::focus {
-    background-color: rgba(255, 255, 255, 5);
-    border: 1px solid rgba(255, 255, 255, 8);
-    color: rgba(255, 255, 255, 200);
-    border-bottom: 2px solid #60cdff;
-}
-
-QSpinBox::up-button {
-    image: url(:/ressources/SpinBoxUp.svg);
-    background-color: rgba(0, 0, 0, 0);
-    border: 1px solid rgba(0, 0, 0, 0);
-    border-radius: 4px;
-    margin-top: 1px;
-    margin-bottom: 1px;
-    margin-right: 3px;
-    min-width: 25px;
-    max-width: 25px;
-    min-height: 15px;
-}
-
-QSpinBox::up-button:hover {
-    background-color: rgba(255, 255, 255, 13);
-}
-
-QSpinBox::up-button:pressed {
-    background-color: rgba(255, 255, 255, 5);
-}
-
-QSpinBox::down-button {
-    image: url(:/ressources/SpinBoxDown.svg);
-    background-color: rgba(0, 0, 0, 0);
-    border: 1px solid rgba(0, 0, 0, 0);
-    border-radius: 4px;
-    margin-top: 1px;
-    margin-bottom: 1px;
-    margin-right: 3px;
-    min-width: 25px;
-    max-width: 25px;
-    min-height: 15px;
-}
-
-QSpinBox::down-button:hover {
-    background-color: rgba(255, 255, 255, 13);
-}
-
-QSpinBox::down-button:pressed {
-    background-color: rgba(255, 255, 255, 5);
-}
-
-QSpinBox::drop-down {
-    background-color: transparent;
-    width: 50px;
-}
-
-QSpinBox:disabled {
-    color: rgb(150, 150, 150);
-    background-color: rgba(255, 255, 255, 13);
-    border: 1px solid rgba(255, 255, 255, 5);
-}
-
-QSpinBox::up-button:disabled {
-    image: url(:/ressources/SpinBoxUpDisabled.svg);
-}
-
-QSpinBox::down-button:disabled {
-    image: url(:/ressources/SpinBoxDownDisabled.svg);
-}
-QScrollArea {
-    border-radius: 15px;
-    color: #FFFFFF; /* Couleur du texte */
-   background:rgba(31, 31, 31,0.9);
-}
-
-QScrollBar:vertical {
-    border: 6px solid rgba(255, 255, 255, 0);
-    background-color: transparent;
-    margin: 0px 0px 0px 0px;
-    width: 16px;
-}
-
-QScrollBar:vertical:hover {
-    border: 5px solid rgba(255, 255, 255, 0);
-}
-
-QScrollBar::handle:vertical {
-    background-color: rgba(255, 255, 255, 130);
-    border-radius: 2px;
-    min-height: 25px;
-}
-
-QScrollBar::sub-line:vertical {
-    image: url(:/ressources/ScrollBar.png);
-    subcontrol-position: top;
-    subcontrol-origin: margin;
-}
-
-QScrollBar::sub-line:vertical:hover {
-    image: url(:/ressources/ScrollBar.png);
-}
-
-QScrollBar::sub-line:vertical:pressed {
-    image: url(:/ressources/ScrollBar.png);
-}
-
-QScrollBar::add-line:vertical {
-    image: url(:/ressources/ScrollBar.png);
-    subcontrol-position: bottom;
-    subcontrol-origin: margin;
-}
-
-QScrollBar::add-line:vertical:hover {
-    image: url(:/ressources/ScrollBar.png);
-}
-
-QScrollBar::add-line:vertical:pressed {
-    image: url(:/ressources/ScrollBar.png);
-}
-
-QScrollBar::add-page:vertical, QScrollBar::sub-page:vertical {
-    background: none;
-}
-
-</string>
+          <string notr="true"/>
          </property>
          <property name="widgetResizable">
           <bool>true</bool>
@@ -2086,8 +1971,8 @@ QScrollBar::add-page:vertical, QScrollBar::sub-page:vertical {
            <rect>
             <x>0</x>
             <y>0</y>
-            <width>406</width>
-            <height>1078</height>
+            <width>725</width>
+            <height>838</height>
            </rect>
           </property>
           <layout class="QGridLayout" name="gridLayout_9">
@@ -2114,7 +1999,7 @@ QScrollBar::add-page:vertical, QScrollBar::sub-page:vertical {
             <widget class="QSpinBox" name="downloadSpeedLimitSpinBox">
              <property name="minimumSize">
               <size>
-               <width>72</width>
+               <width>74</width>
                <height>0</height>
               </size>
              </property>
@@ -2437,7 +2322,7 @@ background:transparent;
             <widget class="QSpinBox" name="uploadSpeedLimitSpinBox">
              <property name="minimumSize">
               <size>
-               <width>72</width>
+               <width>74</width>
                <height>0</height>
               </size>
              </property>
@@ -2580,7 +2465,7 @@ background:transparent;
             <widget class="QSpinBox" name="uploadLimitSpinBox">
              <property name="minimumSize">
               <size>
-               <width>72</width>
+               <width>74</width>
                <height>0</height>
               </size>
              </property>
@@ -2612,7 +2497,7 @@ background:transparent;
             <widget class="QSpinBox" name="downloadLimitSpinBox">
              <property name="minimumSize">
               <size>
-               <width>72</width>
+               <width>74</width>
                <height>0</height>
               </size>
              </property>
@@ -2826,7 +2711,7 @@ QTreeView::indicator:disabled {
           <string notr="true">QScrollArea {
     border-radius: 15px;
     color: #FFFFFF; /* Couleur du texte */
-   background:rgba(31, 31, 31,0.9);
+   background:rgba(31, 31, 31,0.65);
 }
 
 QScrollBar:vertical {
@@ -3363,7 +3248,7 @@ background-color:rgba(250,250,200,0.6);
 background:rgba(55, 58, 64,0.7);
 border-radius:15px;
 background:rgba(16, 51, 76, 0.7);
-background:rgba(31, 31, 31,0.8);
+background:rgba(31, 31, 31,0.6);
 }
 QLabel{
 background:transparent;
@@ -3406,8 +3291,8 @@ color:rgba(71, 158, 245, 1);
       <property name="verticalSpacing">
        <number>10</number>
       </property>
-      <item row="2" column="1">
-       <widget class="CustomToolButton" name="utilitiesButton">
+      <item row="1" column="1">
+       <widget class="CustomToolButton" name="notifButton">
         <property name="minimumSize">
          <size>
           <width>194</width>
@@ -3418,25 +3303,12 @@ color:rgba(71, 158, 245, 1);
          <string notr="true"/>
         </property>
         <property name="text">
-         <string>Utilities</string>
+         <string>Notifications</string>
         </property>
         <property name="toolButtonStyle">
          <enum>Qt::ToolButtonStyle::ToolButtonTextBesideIcon</enum>
         </property>
        </widget>
-      </item>
-      <item row="4" column="1">
-       <spacer name="verticalSpacer">
-        <property name="orientation">
-         <enum>Qt::Orientation::Vertical</enum>
-        </property>
-        <property name="sizeHint" stdset="0">
-         <size>
-          <width>20</width>
-          <height>40</height>
-         </size>
-        </property>
-       </spacer>
       </item>
       <item row="3" column="1">
        <widget class="CustomToolButton" name="userInfoButton">
@@ -3476,8 +3348,8 @@ color:rgba(71, 158, 245, 1);
         </property>
        </widget>
       </item>
-      <item row="1" column="1">
-       <widget class="CustomToolButton" name="notifButton">
+      <item row="2" column="1">
+       <widget class="CustomToolButton" name="utilitiesButton">
         <property name="minimumSize">
          <size>
           <width>194</width>
@@ -3488,7 +3360,7 @@ color:rgba(71, 158, 245, 1);
          <string notr="true"/>
         </property>
         <property name="text">
-         <string>Notifications</string>
+         <string>Utilities</string>
         </property>
         <property name="toolButtonStyle">
          <enum>Qt::ToolButtonStyle::ToolButtonTextBesideIcon</enum>
@@ -3512,6 +3384,85 @@ color:rgba(71, 158, 245, 1);
         <property name="styleSheet">
          <string notr="true">border:1px solid green;</string>
         </property>
+       </widget>
+      </item>
+      <item row="4" column="1">
+       <spacer name="verticalSpacer">
+        <property name="orientation">
+         <enum>Qt::Orientation::Vertical</enum>
+        </property>
+        <property name="sizeHint" stdset="0">
+         <size>
+          <width>20</width>
+          <height>40</height>
+         </size>
+        </property>
+       </spacer>
+      </item>
+      <item row="5" column="0" colspan="2">
+       <widget class="QFrame" name="frame_2">
+        <property name="frameShape">
+         <enum>QFrame::Shape::StyledPanel</enum>
+        </property>
+        <property name="frameShadow">
+         <enum>QFrame::Shadow::Raised</enum>
+        </property>
+        <layout class="QVBoxLayout" name="verticalLayout">
+         <property name="leftMargin">
+          <number>10</number>
+         </property>
+         <property name="rightMargin">
+          <number>10</number>
+         </property>
+         <item>
+          <widget class="HoverButton" name="saveButton">
+           <property name="minimumSize">
+            <size>
+             <width>10</width>
+             <height>35</height>
+            </size>
+           </property>
+           <property name="maximumSize">
+            <size>
+             <width>16777215</width>
+             <height>35</height>
+            </size>
+           </property>
+           <property name="layoutDirection">
+            <enum>Qt::LayoutDirection::LeftToRight</enum>
+           </property>
+           <property name="styleSheet">
+            <string notr="true">
+QPushButton{
+font: 700 14pt &quot;Noto Sans&quot;;
+border-radius:8px;
+background-color: transparent;
+padding-left:10px;
+padding-right:10px;
+color: rgb(255, 255, 255);
+}
+QPushButton:hover{
+    border:1px solid #479EF5;
+background:#479EF5;
+color:black;
+}</string>
+           </property>
+           <property name="text">
+            <string>Save   </string>
+           </property>
+           <property name="icon">
+            <iconset resource="icons.qrc">
+             <normaloff>:/icons/savewhite.svg</normaloff>:/icons/savewhite.svg</iconset>
+           </property>
+           <property name="iconSize">
+            <size>
+             <width>32</width>
+             <height>32</height>
+            </size>
+           </property>
+          </widget>
+         </item>
+        </layout>
        </widget>
       </item>
      </layout>
@@ -3547,6 +3498,15 @@ color: rgb(255, 255, 255);
 }
 QPushButton:hover{
     border:1px solid #479EF5;
+background:#479EF5;
+color:black;
+}
+#closeButton{
+background:transparent;
+border:none;
+}
+#closeButton{
+border:none;
 }</string>
      </property>
      <property name="frameShape">
@@ -3691,7 +3651,61 @@ QPushButton:hover{
        </widget>
       </item>
       <item>
+       <widget class="HoverButton" name="saveButton_2">
+        <property name="minimumSize">
+         <size>
+          <width>10</width>
+          <height>35</height>
+         </size>
+        </property>
+        <property name="maximumSize">
+         <size>
+          <width>16777215</width>
+          <height>35</height>
+         </size>
+        </property>
+        <property name="layoutDirection">
+         <enum>Qt::LayoutDirection::LeftToRight</enum>
+        </property>
+        <property name="styleSheet">
+         <string notr="true">font: 700 14pt &quot;Noto Sans&quot;;</string>
+        </property>
+        <property name="text">
+         <string>Save   </string>
+        </property>
+        <property name="icon">
+         <iconset resource="icons.qrc">
+          <normaloff>:/icons/savewhite.svg</normaloff>:/icons/savewhite.svg</iconset>
+        </property>
+        <property name="iconSize">
+         <size>
+          <width>32</width>
+          <height>32</height>
+         </size>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <spacer name="horizontalSpacer_9">
+        <property name="orientation">
+         <enum>Qt::Orientation::Horizontal</enum>
+        </property>
+        <property name="sizeHint" stdset="0">
+         <size>
+          <width>40</width>
+          <height>20</height>
+         </size>
+        </property>
+       </spacer>
+      </item>
+      <item alignment="Qt::AlignmentFlag::AlignHCenter">
        <widget class="QLabel" name="title">
+        <property name="minimumSize">
+         <size>
+          <width>200</width>
+          <height>0</height>
+         </size>
+        </property>
         <property name="maximumSize">
          <size>
           <width>16777215</width>
@@ -3713,42 +3727,20 @@ color:black;
        </widget>
       </item>
       <item>
-       <widget class="HoverButton" name="save">
-        <property name="minimumSize">
+       <spacer name="horizontalSpacer_5">
+        <property name="orientation">
+         <enum>Qt::Orientation::Horizontal</enum>
+        </property>
+        <property name="sizeHint" stdset="0">
          <size>
-          <width>10</width>
-          <height>35</height>
+          <width>40</width>
+          <height>20</height>
          </size>
         </property>
-        <property name="maximumSize">
-         <size>
-          <width>150</width>
-          <height>35</height>
-         </size>
-        </property>
-        <property name="layoutDirection">
-         <enum>Qt::LayoutDirection::RightToLeft</enum>
-        </property>
-        <property name="styleSheet">
-         <string notr="true">font: 700 14pt &quot;Noto Sans&quot;;</string>
-        </property>
-        <property name="text">
-         <string>Save   </string>
-        </property>
-        <property name="icon">
-         <iconset resource="icons.qrc">
-          <normaloff>:/icons/savewhite.svg</normaloff>:/icons/savewhite.svg</iconset>
-        </property>
-        <property name="iconSize">
-         <size>
-          <width>32</width>
-          <height>32</height>
-         </size>
-        </property>
-       </widget>
+       </spacer>
       </item>
       <item>
-       <widget class="QToolButton" name="closesetting">
+       <widget class="HoverButton" name="closeButton">
         <property name="minimumSize">
          <size>
           <width>10</width>

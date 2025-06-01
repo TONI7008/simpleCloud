@@ -65,7 +65,6 @@ TFolder::TFolder(TFileInfo info, bool base,TFolder* pTFolder,ThreadManager* t,ma
         setEnableBackground(false);
     }
 
-
 }
 
 TFolder::~TFolder()
@@ -164,7 +163,7 @@ void TFolder::settingUpMenu()
 
     }
 
-    connect(this, &TFolder::rightClicked, this,&TFolder::handleRightClicked);
+    connect(this, &TCloudElt::rightClicked, this,&TFolder::handleRightClicked);
 }
 
 void TFolder::add(TCloudElt* cloudElt)
@@ -321,7 +320,17 @@ void TFolder::deleteFolder()
 
 void TFolder::restoreFolder()
 {
+    getMainThread()->restoreFolder(m_info.filepath+"/.");
 
+    connect(getMainThread(), &mainThread::restoreSuccess, this, [this]{
+        disconnect(getMainThread(), &mainThread::restoreSuccess, nullptr, nullptr);
+        parentFolder()->remove(this);
+    });
+
+    connect(getMainThread(), &mainThread::restoreFailed, this, [this](QString error){
+        disconnect(getMainThread(), &mainThread::restoreFailed, nullptr, nullptr);
+        qDebug() << "Error=" <<error;
+    });
 }
 
 
@@ -418,8 +427,11 @@ void TFolder::setupFolderIconView()
     m_icon = QIcon(":/icons/folder.svg");
     m_iconButton = new TPushButton(folderIconView);
     m_iconButton->setIcon(m_icon);
-    m_iconButton->setIconSize(QSize(82,82));
+    m_iconButton->setIconSize(QSize(100,82));
+    m_iconButton->setFixedSize(QSize(100,82));
     m_iconButton->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
+
+    //m_iconButton->setStyleSheet("background: transparent; border: none;");
 
     m_displayLayout = new QGridLayout(folderIconView);
 
@@ -430,14 +442,7 @@ void TFolder::setupFolderIconView()
 
 
     folderIconView->setLayout(m_displayLayout);
-
-    connect(m_iconButton, &TPushButton::Clicked, this, &TCloudElt::Clicked);
-    connect(m_iconButton, &TPushButton::doubleClicked, this, &TCloudElt::doubleClicked);
-    connect(folderIconView, &TWidget::doubleClicked, this, &TCloudElt::doubleClicked);
-    connect(m_iconButton, &TPushButton::rightClicked, this, &TCloudElt::rightClicked);
-    connect(m_labelName, &TLabel::doubleClicked, this, &TCloudElt::doubleClicked);
-    connect(m_labelName, &TLabel::rightClicked, this, &TCloudElt::rightClicked);
-    connect(m_labelName, &TLabel::Clicked, this, &TCloudElt::Clicked);
+    folderIconView->setAttribute(Qt::WA_TransparentForMouseEvents);
 
     settingUpMenu();
 
@@ -485,7 +490,6 @@ void TFolder::setIconView()
     m_scrollArea->setWidget(folderIconView);
 
     m_fileWidget->hide();
-    //qDebug()<< m_fileWidget->isVisible();
     m_scrollArea->update();
 
     setZoomed(false);
@@ -661,6 +665,7 @@ bool TFolder::setupDeletedFolder(TFolder* pFolder, TFileInfo finalInfo)
         return false;
     }
 }
+
 
 
 bool TFolder::setupSearchFolder(TFolder* pFolder, TFileInfo finalInfo)
@@ -863,6 +868,41 @@ void TFolder::handleRightClicked(const QPoint &pos)
     }
 }
 
+TFolder::SortType TFolder::sortType() const
+{
+    return m_sortType;
+}
+
+void TFolder::setSortType(SortType newSortType,bool order)
+{
+    if(newSortType==m_sortType) return;
+    qDebug() << "sorting :" << name();
+    qDebug()   <<" from:"<<m_sortType << " to:"<<newSortType;
+    qDebug("---END-----");
+
+    m_sortType = newSortType;
+
+    for(auto folder : std::as_const(subFolders)){
+        folder->setSortType(newSortType);
+    }
+
+
+    switch (m_sortType) {
+    case Size:
+        m_fileWidget->sortSize(order);
+        break;
+    case Name:
+        m_fileWidget->sortName(order);
+        break;
+    case Type:
+        m_fileWidget->sortType(order);
+        break;
+    default:
+        break;
+    }
+
+}
+
 QVBoxLayout *TFolder::favoriteLayout() const
 {
     return m_favoriteLayout;
@@ -942,17 +982,13 @@ QString TFolderLink::extractName(const QString &path)
     QString npath=path;
     npath.replace(":/","");
     QStringList parts = npath.split("/", Qt::SkipEmptyParts);
-    return parts.isEmpty() ? "" : parts.first();
+    return parts.isEmpty() ? " " : parts.last();
 }
 
 void TFolderLink::connectingSignals()
 {
-    connect(m_iconButton, &TPushButton::Clicked, this, &TCloudElt::Clicked);
-    connect(m_iconButton, &TPushButton::doubleClicked, this, &TCloudElt::doubleClicked);
-    connect(m_iconButton, &TPushButton::rightClicked, this, &TCloudElt::rightClicked);
-    connect(m_labelName, &TLabel::doubleClicked, this, &TCloudElt::doubleClicked);
-    connect(m_labelName, &TLabel::rightClicked, this, &TCloudElt::rightClicked);
-    connect(m_labelName, &TLabel::Clicked, this, &TCloudElt::Clicked);
+    m_labelName->setAttribute(Qt::WA_TransparentForMouseEvents);
+    m_iconButton->setAttribute(Qt::WA_TransparentForMouseEvents);
 }
 
 void TFolderLink::gotoFolder()

@@ -45,13 +45,13 @@ LoadingFrame::LoadingFrame(QWidget *parent) : TFrame(parent)
         QFrame {
             background: transparent;
             border: none;
-            font: 700 16pt "Noto Sans";
-            color: rgba(189, 189, 189,0.5);
+            font: 700 15pt "Noto Sans";
+            color: rgba(189, 189, 189,0.8);
         }
         QLabel {
             background: transparent; // Added for better visibility
-            font: 700 16pt "Noto Sans";
-            color: rgba(189, 189, 189,0.5);
+            font: 700 15pt "Noto Sans";
+            color: rgba(189, 189, 189,0.8);
 
         }
     )";

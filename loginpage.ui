@@ -19,7 +19,8 @@ background:transparent;
 }
 #loginFrame {
 background:rgba(30,30,30,0.6);
-border-radius:15px;
+border-radius:20px;
+border:3px solid rgb(71,158,245);
 }
 QLineEdit {
     background: rgba(120, 120, 120, 0.5);
@@ -56,56 +57,14 @@ QPushButton:pressed {
     background-color: rgba(70, 158, 245, 0.6);
 }
 
-</string>
-  </property>
-  <layout class="QGridLayout" name="gridLayout">
-   <item row="0" column="0">
-    <widget class="QFrame" name="loginFrame">
-     <property name="maximumSize">
-      <size>
-       <width>450</width>
-       <height>450</height>
-      </size>
-     </property>
-     <property name="frameShape">
-      <enum>QFrame::Shape::StyledPanel</enum>
-     </property>
-     <property name="frameShadow">
-      <enum>QFrame::Shadow::Raised</enum>
-     </property>
-     <layout class="QGridLayout" name="gridLayout_2">
-      <property name="topMargin">
-       <number>1</number>
-      </property>
-      <property name="verticalSpacing">
-       <number>4</number>
-      </property>
-      <item row="4" column="0" colspan="2">
-       <widget class="QCheckBox" name="showCheckbox">
-        <property name="minimumSize">
-         <size>
-          <width>0</width>
-          <height>30</height>
-         </size>
-        </property>
-        <property name="maximumSize">
-         <size>
-          <width>16777215</width>
-          <height>30</height>
-         </size>
-        </property>
-        <property name="autoFillBackground">
-         <bool>false</bool>
-        </property>
-        <property name="styleSheet">
-         <string notr="true">QCheckBox,
+
+QCheckBox,
 QLabel,
 QAbstractCheckBox,
 QTreeView::indicator,
 QRadioButton {
     padding: 0px;
-    font-style: 12pt &quot;Noto Sans&quot;;
-background:transparent;
+    font-style: normal;
 }
 
 QCheckBox {
@@ -145,7 +104,7 @@ QCheckBox::indicator:checked,
 QTreeView::indicator:checked {
     background-color: #60cdff;
     border: 1px solid #60cdff;
-    image: url(:/Ressources/CheckBox.svg);
+    image: url(:/ressources/CheckBox.svg);
 }
 
 QGroupBox::indicator:checked:hover,
@@ -162,7 +121,7 @@ QCheckBox::indicator:checked:pressed,
 QTreeView::indicator:checked:pressed {
     background-color: #53aad2;
     border: 1px solid #53aad2;
-    image: url(:/Ressources/CheckBoxPressed.svg);
+    image: url(:/ressources/CheckBoxPressed.svg);
 }
 
 QCheckBox::indicator:indeterminate,
@@ -171,7 +130,7 @@ QTreeView::indicator:indeterminate,
 QTableView::indicator:indeterminate {
     background-color: #60cdff;
     border: 1px solid #60cdff;
-    image: url(:/Ressources/CheckBoxInterminate.svg);
+    image: url(:/ressources/CheckBoxInterminate.svg);
 }
 
 QCheckBox::indicator:indeterminate:hover,
@@ -188,7 +147,7 @@ QTreeView::indicator:indeterminate:pressed,
 QTableView::indicator:indeterminate:pressed {
     background-color: #53aad2;
     border: 1px solid #53aad2;
-    image: url(:/Ressources/CheckBoxInterminatePressed.svg);
+    image: url(:/ressources/CheckBoxInterminatePressed.svg);
 }
 
 QCheckBox::indicator:indeterminate:disabled,
@@ -197,7 +156,7 @@ QTreeView::indicator:indeterminate:disabled,
 QTableView::indicator:indeterminate:disabled {
     border: 1px solid #404040;
     background-color: #404040;
-    image: url(:/Ressources/CheckBoxInterminatePressed.svg);
+    image: url(:/ressources/CheckBoxInterminatePressed.svg);
 }
 
 QGroupBox::indicator:checked:disabled,
@@ -206,7 +165,7 @@ QCheckBox::indicator:checked:disabled,
 QTreeView::indicator:checked:disabled {
     border: 1px solid #404040;
     background-color: #404040;
-    image: url(:/Ressources/CheckBoxPressed.svg); 
+    image: url(:/ressources/CheckBoxPressed.svg); 
 }
 
 QGroupBox::indicator:disabled,
@@ -215,7 +174,52 @@ QCheckBox::indicator:disabled,
 QTreeView::indicator:disabled {
     border: 1px solid #404040;
     background-color: rgba(255, 255, 255, 0);
-}</string>
+}
+
+
+</string>
+  </property>
+  <layout class="QGridLayout" name="gridLayout">
+   <item row="0" column="0">
+    <widget class="QFrame" name="loginFrame">
+     <property name="maximumSize">
+      <size>
+       <width>450</width>
+       <height>450</height>
+      </size>
+     </property>
+     <property name="frameShape">
+      <enum>QFrame::Shape::StyledPanel</enum>
+     </property>
+     <property name="frameShadow">
+      <enum>QFrame::Shadow::Raised</enum>
+     </property>
+     <layout class="QGridLayout" name="gridLayout_2">
+      <property name="topMargin">
+       <number>1</number>
+      </property>
+      <property name="verticalSpacing">
+       <number>4</number>
+      </property>
+      <item row="5" column="0" colspan="2">
+       <widget class="QCheckBox" name="showCheckbox">
+        <property name="minimumSize">
+         <size>
+          <width>0</width>
+          <height>30</height>
+         </size>
+        </property>
+        <property name="maximumSize">
+         <size>
+          <width>16777215</width>
+          <height>30</height>
+         </size>
+        </property>
+        <property name="autoFillBackground">
+         <bool>false</bool>
+        </property>
+        <property name="styleSheet">
+         <string notr="true"/>
         </property>
         <property name="text">
          <string>Show password</string>
@@ -231,55 +235,7 @@ QTreeView::indicator:disabled {
         </property>
        </widget>
       </item>
-      <item row="2" column="0" colspan="2">
-       <widget class="QLineEdit" name="username">
-        <property name="minimumSize">
-         <size>
-          <width>0</width>
-          <height>40</height>
-         </size>
-        </property>
-        <property name="styleSheet">
-         <string notr="true"/>
-        </property>
-        <property name="placeholderText">
-         <string>Username</string>
-        </property>
-       </widget>
-      </item>
-      <item row="6" column="0" colspan="2">
-       <widget class="QPushButton" name="signButton">
-        <property name="minimumSize">
-         <size>
-          <width>0</width>
-          <height>35</height>
-         </size>
-        </property>
-        <property name="text">
-         <string>Sign in</string>
-        </property>
-       </widget>
-      </item>
-      <item row="5" column="0" colspan="2">
-       <widget class="QPushButton" name="loginButton">
-        <property name="minimumSize">
-         <size>
-          <width>0</width>
-          <height>35</height>
-         </size>
-        </property>
-        <property name="styleSheet">
-         <string notr="true"/>
-        </property>
-        <property name="text">
-         <string>Login</string>
-        </property>
-        <property name="shortcut">
-         <string>Return</string>
-        </property>
-       </widget>
-      </item>
-      <item row="3" column="0" colspan="2">
+      <item row="4" column="0" colspan="2">
        <widget class="QLineEdit" name="password">
         <property name="minimumSize">
          <size>
@@ -295,7 +251,23 @@ QTreeView::indicator:disabled {
         </property>
        </widget>
       </item>
-      <item row="1" column="0" colspan="2">
+      <item row="3" column="0" colspan="2">
+       <widget class="QLineEdit" name="username">
+        <property name="minimumSize">
+         <size>
+          <width>0</width>
+          <height>40</height>
+         </size>
+        </property>
+        <property name="styleSheet">
+         <string notr="true"/>
+        </property>
+        <property name="placeholderText">
+         <string>Username</string>
+        </property>
+       </widget>
+      </item>
+      <item row="2" column="0" colspan="2">
        <widget class="QLabel" name="label">
         <property name="maximumSize">
          <size>
@@ -314,12 +286,50 @@ QTreeView::indicator:disabled {
         </property>
        </widget>
       </item>
-      <item row="0" column="1">
-       <widget class="QToolButton" name="toolButton">
+      <item row="7" column="0" colspan="2">
+       <widget class="QPushButton" name="signButton">
+        <property name="minimumSize">
+         <size>
+          <width>0</width>
+          <height>35</height>
+         </size>
+        </property>
+        <property name="text">
+         <string>Sign in</string>
+        </property>
+       </widget>
+      </item>
+      <item row="6" column="0" colspan="2">
+       <widget class="QPushButton" name="loginButton">
+        <property name="minimumSize">
+         <size>
+          <width>0</width>
+          <height>35</height>
+         </size>
+        </property>
+        <property name="styleSheet">
+         <string notr="true"/>
+        </property>
+        <property name="text">
+         <string>Login</string>
+        </property>
+        <property name="shortcut">
+         <string>Return</string>
+        </property>
+       </widget>
+      </item>
+      <item row="1" column="1">
+       <widget class="HoverButton" name="closeButton">
         <property name="minimumSize">
          <size>
           <width>32</width>
           <height>32</height>
+         </size>
+        </property>
+        <property name="maximumSize">
+         <size>
+          <width>40</width>
+          <height>40</height>
          </size>
         </property>
         <property name="styleSheet">
@@ -330,8 +340,8 @@ border:none;</string>
          <string/>
         </property>
         <property name="icon">
-         <iconset>
-          <normaloff>:/Icons/closewhite.svg</normaloff>:/Icons/closewhite.svg</iconset>
+         <iconset resource="icons.qrc">
+          <normaloff>:/icons/closewhite.svg</normaloff>:/icons/closewhite.svg</iconset>
         </property>
         <property name="iconSize">
          <size>
@@ -346,6 +356,23 @@ border:none;</string>
    </item>
   </layout>
  </widget>
- <resources/>
+ <customwidgets>
+  <customwidget>
+   <class>HoverButton</class>
+   <extends>QPushButton</extends>
+   <header>hoverbutton.h</header>
+  </customwidget>
+ </customwidgets>
+ <tabstops>
+  <tabstop>username</tabstop>
+  <tabstop>password</tabstop>
+  <tabstop>showCheckbox</tabstop>
+  <tabstop>loginButton</tabstop>
+  <tabstop>signButton</tabstop>
+  <tabstop>closeButton</tabstop>
+ </tabstops>
+ <resources>
+  <include location="icons.qrc"/>
+ </resources>
  <connections/>
 </ui>

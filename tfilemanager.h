@@ -8,6 +8,7 @@
 
 
 
+
 class TFolder;
 class TWidget;
 class HoverButton;
@@ -28,6 +29,7 @@ public:
     static TFolder* baseFolder;
     static TFolder* deletedFolder;
     static TFolder* searchFolder;
+
 
     void setup(QList<TFileInfo>);
     void setupAsync(QList<TFileInfo>);

@@ -57,6 +57,7 @@ private:
     QString m_buttonStyle;
 
     static const QString DEFAULT_STYLE;
+    QPushButton *createSeparator();
 };
 
 class MessageWidget : public QWidget
@@ -88,6 +89,7 @@ public:
     void setPath(const QString&);
     void setMaxwidth(int width);
     void setMessage(const QString&);
+    void setBackgroundImage(const QString&);
 
 signals:
     void pathClicked(const QString& path);
