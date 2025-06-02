@@ -12,6 +12,8 @@ class SettingsManager;
 class Setting;
 class InputDialog;
 class InfoPage;
+class loginPage;
+class SignUpPage;
 
 QT_BEGIN_NAMESPACE
 namespace Ui {
@@ -31,6 +33,7 @@ public:
     void load(const QString&);
     void unLoad();
     void refresh();
+    void setBackgroundImage(const QString&);
 
 signals:
     void startLoading(const QString&);
@@ -44,6 +47,8 @@ private:
     LoadingFrame* m_loader=nullptr;
     Setting* m_setting=nullptr;
     SettingsManager* m_settingManager=nullptr;
+    loginPage* m_loginPage=nullptr;
+    SignUpPage* m_signUpPage=nullptr;
 
 
     //copy static member

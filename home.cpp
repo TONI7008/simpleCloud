@@ -13,6 +13,8 @@
 #include "tcloud.h"
 #include "tfilechecker.h"
 #include "tclipboard.h"
+#include "loginpage.h"
+#include "signuppage.h"
 
 Home::Home(TSecurityManager* smanager,QWidget *parent)
     : TWidget(parent)
@@ -36,11 +38,6 @@ Home::Home(TSecurityManager* smanager,QWidget *parent)
     m_connect= new mainThread(smanager,nullptr);
     m_connect->moveToThread(delta);
 
-    m_tManager=new ThreadManager(m_connect);
-
-    ui->verticalLayout_3->setAlignment(Qt::AlignTop);
-    m_fileManager=new TFileManager(m_tManager,m_connect,ui->verticalLayout_3,ui->prev,ui->next,ui->searchHoverButton,ui->searchLineEdit,ui->fileStack);
-
     connect(delta,&QThread::started,m_connect,[this]{
         m_connect->build();
         m_connect->start(TWorker::High);
@@ -51,10 +48,9 @@ Home::Home(TSecurityManager* smanager,QWidget *parent)
         delete m_connect;
     });
 
-    connect(m_connect,&mainThread::connected,this,[this](bool connected){
+    connect(m_connect,&mainThread::connected,this,[](bool connected){
         if(connected) {
-            qDebug("success connecting to server");
-            m_connect->login("toni","1234");
+            qDebug("success connecting to server!!!!!");
         }else {
             qDebug("failed to connect to server");
             qWarning("Connection Failed!!!!");
@@ -62,10 +58,26 @@ Home::Home(TSecurityManager* smanager,QWidget *parent)
         }
     });
 
-    connect(m_connect,&mainThread::loginSuccess,this,[this]{
-        m_connect->setUsername("toni");
+    m_loginPage=new loginPage(m_connect,ui->stackedWidget,ui->stackedWidget);
+    m_signUpPage=new SignUpPage(m_connect,ui->stackedWidget,ui->stackedWidget);
+
+
+
+    m_tManager=new ThreadManager(m_connect);
+
+    ui->verticalLayout_3->setAlignment(Qt::AlignTop);
+    m_fileManager=new TFileManager(m_tManager,m_connect,ui->verticalLayout_3,ui->prev,ui->next,ui->searchHoverButton,ui->searchLineEdit,ui->fileStack);
+
+
+
+    connect(m_loginPage,&loginPage::Done,this,[this]{
         m_connect->userInit();
     });
+
+    connect(m_loginPage,&loginPage::startLoading,this,&Home::load);
+    connect(m_loginPage,&loginPage::stopLoading,this,&Home::unLoad);
+    connect(m_signUpPage,&SignUpPage::startLoading,this,&Home::load);
+    connect(m_signUpPage,&SignUpPage::stopLoading,this,&Home::unLoad);
 
     connect(m_connect,&mainThread::initSuccess,this,[this]{
         m_fileManager->setupAsync(m_connect->getList());
@@ -113,8 +125,9 @@ Home::Home(TSecurityManager* smanager,QWidget *parent)
         ui->usagelabel->setText(QString("Usage :%1").arg(TCLOUD::formatSize(m_fileManager->usage())));
         ui->availableSpaceLabel->setText(QString("Total Space :%1").arg(TCLOUD::formatSize(m_connect->getAvailableSpace())));
         ui->dynamicFrame->setMaxwidth(ui->pFrame->width());
-
         unLoad();
+
+        ui->dynamicFrame->setMessage("Welcome "+m_connect->getUsername()+" 😊");
     });
     connect(this,&TWidget::resizing,this,&Home::handleResize);
 
@@ -132,7 +145,6 @@ Home::Home(TSecurityManager* smanager,QWidget *parent)
     connect(m_setting,&Setting::aboutToClose,this,[this]{
         ui->stackedWidget->setCurrentWidget(ui->homePage);
     });
-
 
 
     connect(m_fileManager,&TFileManager::pathChanged,ui->dynamicFrame,&TDynamicFrame::setPath);
@@ -153,6 +165,9 @@ Home::Home(TSecurityManager* smanager,QWidget *parent)
     delta->start(QThread::HighPriority);
 
     ui->stackedWidget->addWidget(m_setting);
+    ui->stackedWidget->addWidget(m_signUpPage);
+    ui->stackedWidget->addWidget(m_loginPage);
+
     InputDialog::Init(m_connect,this);
     InfoPage::Init(this);
     TClipBoard::Init();
@@ -185,8 +200,7 @@ Home::Home(TSecurityManager* smanager,QWidget *parent)
     });
 
     ui->recursiveSearchButton->setChecked(true);
-
-    load("Welcome to simple Cloud 😊. Lets sign you in.....");
+    ui->stackedWidget->setCurrentWidget(m_loginPage);
 
     resize(900,600);
 }
@@ -199,6 +213,7 @@ Home::~Home()
     delete m_loader;
     delete m_fileManager;
     delete m_tManager;
+
 
     InfoPage::cleanUp();
     InputDialog::cleanUp();
@@ -229,6 +244,13 @@ void Home::refresh()
     m_connect->userInit();
 }
 
+void Home::setBackgroundImage(const QString &img)
+{
+    ui->dynamicFrame->setBackgroundImage(img);
+
+    TWidget::setBackgroundImage(img);
+}
+
 void Home::handleResize()
 {
     QRect rect=this->rect();
@@ -245,7 +267,8 @@ void Home::handleResize()
     m_iDialog->move(x2, y2);
     m_iDialog->raise();
 
-    ui->dynamicFrame->setMaxwidth(ui->pFrame->width());
-    ui->searchFile->setMinimumWidth(ui->pFrame->width()/3.4);
+    QRect rect2=ui->pFrame->rect();
+    ui->dynamicFrame->setMaxwidth(rect2.width()-5);
+    ui->searchFile->setMinimumWidth(rect2.width()/3.4);
 }
 
