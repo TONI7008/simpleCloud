@@ -10,17 +10,20 @@ CONFIG += c++17
 
 SOURCES += \
     backgroundframe.cpp \
+    hframe.cpp \
     inputdialog.cpp \
     main.cpp \
     home.cpp \
-    mainthread.cpp \
+    margindetectingwidget.cpp \
     tclipboard.cpp \
-    tdynamicframe.cpp \
     tfile.cpp \
     tfilechecker.cpp \
     tfilemanager.cpp \
     tfilewidget.cpp \
     tfolder.cpp \
+    thistorydisplay.cpp \
+    tmessagebox.cpp \
+    tnotification.cpp \
     twidget.cpp \
     tblurwidget.cpp \
     tworker.cpp \
@@ -50,29 +53,43 @@ SOURCES += \
     loader.cpp \
     uclient.cpp \
     dclient.cpp \
-    popoutframe.cpp
+    popoutframe.cpp \
+    tdialog.cpp \
+    dynamicframeassistant.cpp \
+    tcheckmark.cpp \
+    iconcolorizer.cpp \
+    networkagent.cpp \
+    communicationdispatcher.cpp \
+    waitingspinner.cpp \
+    tflowlayout.cpp \
+    tcustomprogressbar.cpp \
+
 
 
 
 
 HEADERS += \
     backgroundframe.h \
+    barupdater.hpp \
+    hframe.h \
     inputdialog.h \
+    margindetectingwidget.h \
     tclipboard.h \
-    tcloud.h \
     home.h \
-    mainthread.h \
-    tdynamicframe.h \
+    tcloud.hpp \
     tfile.h \
     tfilechecker.h \
+    tfileinfo.hpp \
     tfilemanager.h \
     tfilewidget.h \
     tfolder.h \
+    thistorydisplay.h \
+    tmessagebox.h \
+    tnotification.h \
     twidget.h \
     tblurwidget.h \
     tworker.h \
     tcloudelt.h \
-    tfileinfo.h \
     tframe.h \
     elidedlabel.h \
     tpushbutton.h \
@@ -98,11 +115,19 @@ HEADERS += \
     threadmanager.h \
     threadmanagerhelper.h \
     loader.h \
-    barupdater.h \
     uclient.h \
     dclient.h \
     idmaker.h \
-    popoutframe.h
+    popoutframe.h \
+    tdialog.h \
+    dynamicframeassistant.h \
+    tcheckmark.h \
+    iconcolorizer.h \
+    networkagent.h \
+    communicationdispatcher.h \
+    waitingspinner.h \
+    tflowlayout.h \
+    tcustomprogressbar.h
 
 
 

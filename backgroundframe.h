@@ -7,7 +7,7 @@
 #include <QPainterPath>
 #include <QPainter>
 #include <QPixmap>
-#include <QToolButton>
+#include <QPushButton>
 
 class BackgroundFrame : public TFrame {
     Q_OBJECT
@@ -33,7 +33,7 @@ private:
     bool selected = false;
     QString m_text;
     bool m_simpleType = false;
-    QToolButton* deleteButton;
+    QPushButton* deleteButton;
     QPixmap m_backgroundImage;
 
     void updateAppearance();

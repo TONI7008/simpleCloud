@@ -50,18 +50,15 @@ private:
         bool immediate;
     };
 
-    QEasingCurve m_curve = QEasingCurve::OutQuad;
-    int m_duration = 277;
+    QEasingCurve m_curve = QEasingCurve::OutBack;
+    int m_duration = 300;
     bool m_isAnimating = false;
     Type m_type = SlideFade;
-    bool m_blurEnabled = true;
-    QQueue<AnimationRequest> m_animationQueue;
+    bool m_blurEnabled = false;
     qreal m_fadeStartOpacity = 1.0;
     qreal m_fadeEndOpacity = 0.0;
     QPainter::RenderHint m_renderHint = QPainter::Antialiasing;
-    QElapsedTimer timer;
 
-    void processNextAnimation();
     void executeAnimation(int index, bool immediate);
     void slideFadeAnimation(int index);
     void horizontalSlideAnimation(int index);

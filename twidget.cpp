@@ -1,14 +1,17 @@
 #include "twidget.h"
 #include <QPainter>
 #include <QFile>
-#include "tcloud.h"
+#include "tcloud.hpp"
 
 TWidget::TWidget(QWidget *parent)
-    : QWidget(parent), isDoubleClick(false), enableBackground(false), enableBorder(false),
+    : MarginDetectingWidget(parent), isDoubleClick(false), enableBackground(false), enableBorder(false),
     borderSize(0), borderColorValue(QColor(71, 158, 245)), m_bRadius(0) {
 
 
     //m_backgroundImage=QPixmap::fromImage(TCLOUD::defaultWidgetImage());
+
+    //setAttribute(Qt::WA_NoMousePropagation, false);
+    //setAttribute(Qt::WA_MouseNoMask, true);
     timer = new QTimer(this);
     timer->setSingleShot(true);
 
@@ -18,6 +21,8 @@ TWidget::TWidget(QWidget *parent)
         }
         isDoubleClick = false;
     });
+
+
 }
 
 TWidget::~TWidget() {
@@ -116,6 +121,7 @@ void TWidget::resizeEvent(QResizeEvent *event) {
 }
 
 void TWidget::mousePressEvent(QMouseEvent *event) {
+
     isDoubleClick = false;
 
     if (event->button() == Qt::RightButton) {
@@ -138,14 +144,17 @@ void TWidget::mousePressEvent(QMouseEvent *event) {
     } else if (event->button() == Qt::XButton2) {
         emit nextPressed();
     }
+    //MarginDetectingWidget::mousePressEvent(event);
 }
 
 void TWidget::mouseDoubleClickEvent(QMouseEvent *event) {
+
     if (event->button() == Qt::LeftButton) {
         isDoubleClick = true;
         timer->stop();
         emit doubleClicked(event->pos());
     }
+    MarginDetectingWidget::mouseDoubleClickEvent(event);
 }
 
 
@@ -162,12 +171,20 @@ void TWidget::mouseReleaseEvent(QMouseEvent *event)
 void TWidget::paintEvent(QPaintEvent *event) {
     QWidget::paintEvent(event);
 
+    if (windowFlags() & Qt::Dialog) {
+        QPainter painter(this);
+        painter.setCompositionMode(QPainter::CompositionMode_Clear);
+        painter.fillRect(rect(), Qt::transparent);
+        painter.setCompositionMode(QPainter::CompositionMode_SourceOver);
+    }
+
     QPainter painter(this);
     painter.setRenderHint(QPainter::Antialiasing, true);
 
     QPainterPath path;
     QRect r = rect();
     int rSize = m_bRadius;
+
 
     switch (m_cornerStyle) {
     case CornerStyle::TopOnly:
@@ -252,13 +269,14 @@ void TWidget::paintEvent(QPaintEvent *event) {
         QPen pen(borderColorValue, borderSize);
         painter.setPen(pen);
         pen.setJoinStyle(Qt::MiterJoin);
+        pen.setCapStyle(Qt::RoundCap);
         painter.setBrush(Qt::NoBrush);
         painter.drawPath(path);
     }
 }
 
 void TWidget::moveEvent(QMoveEvent *event) {
-    QWidget::moveEvent(event);
+    MarginDetectingWidget::moveEvent(event);
     emit isMoving();
 }
 

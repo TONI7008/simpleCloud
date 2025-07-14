@@ -3,6 +3,7 @@
 #include <QSequentialAnimationGroup>
 #include <QGraphicsView>
 #include <QGraphicsProxyWidget>
+#include <QTimer>
 
 
 TStackedWidget::TStackedWidget(QWidget* parent)
@@ -10,33 +11,19 @@ TStackedWidget::TStackedWidget(QWidget* parent)
 {
     setAnimationQuality(QPainter::Antialiasing);
 }
-
 TStackedWidget::~TStackedWidget()
 {
-    // Clean up any pending animations
-    while (!m_animationQueue.isEmpty()) {
-        m_animationQueue.dequeue();
-    }
+
 }
 
 void TStackedWidget::setCurrentIndex(int index, bool immediate)
 {
-    if(timer.isValid()){
-        timer.restart();
-    }else{
-        timer.start();
-    }
-
     if (index < 0 || index >= count() || index == currentIndex()) {
         return;
     }
+    if(m_isAnimating) return;
 
-    AnimationRequest request{index, immediate};
-    m_animationQueue.enqueue(request);
-
-    if (!m_isAnimating) {
-        processNextAnimation();
-    }
+    executeAnimation(index, immediate);
 }
 
 void TStackedWidget::setCurrentWidget(QWidget *w, bool immediate)
@@ -45,26 +32,6 @@ void TStackedWidget::setCurrentWidget(QWidget *w, bool immediate)
     if (index != -1) {
         setCurrentIndex(index, immediate);
     }
-}
-
-void TStackedWidget::setCurve(QEasingCurve curve)
-{
-    m_curve = curve;
-}
-
-void TStackedWidget::setAnimationDuration(int duration)
-{
-    m_duration = qMax(166, duration); // Minimum 50ms duration
-}
-
-void TStackedWidget::setAnimationType(Type type)
-{
-    m_type = type;
-}
-
-void TStackedWidget::setBlurEffectEnabled(bool enabled)
-{
-    m_blurEnabled = enabled;
 }
 
 void TStackedWidget::addWidget(QWidget* widget)
@@ -83,22 +50,10 @@ void TStackedWidget::setAnimationQuality(QPainter::RenderHint hint)
     m_renderHint = hint;
 }
 
-void TStackedWidget::processNextAnimation()
-{
-    if (m_animationQueue.isEmpty()) {
-        m_isAnimating = false;
-        return;
-    }
-
-    AnimationRequest request = m_animationQueue.dequeue();
-    executeAnimation(request.index, request.immediate);
-}
-
 void TStackedWidget::executeAnimation(int index, bool immediate)
 {
     if (immediate || !isVisible()) {
         QStackedWidget::setCurrentIndex(index);
-        processNextAnimation();
         return;
     }
 
@@ -136,7 +91,7 @@ void TStackedWidget::slideFadeAnimation(int index)
     QWidget* nextWidget = widget(index);
 
     if (!currentWidget || !nextWidget) {
-        processNextAnimation();
+        m_isAnimating = false;
         return;
     }
 
@@ -159,7 +114,7 @@ void TStackedWidget::slideFadeAnimation(int index)
         nextStartGeometry.moveBottom(currentWidget->geometry().top());
     }
 
-    nextWidget->setGeometry(nextStartGeometry);
+    //nextWidget->setGeometry(nextStartGeometry);
 
     // Create animation group
     QParallelAnimationGroup* group = new QParallelAnimationGroup(this);
@@ -183,13 +138,13 @@ void TStackedWidget::slideFadeAnimation(int index)
     connect(group, &QParallelAnimationGroup::finished, this, [this, index, currentWidget]() {
         QStackedWidget::setCurrentIndex(index);
         currentWidget->setGraphicsEffect(nullptr);
-        cleanupAfterAnimation();
+        m_isAnimating = false;
         emit animationFinished();
-        processNextAnimation();
     });
 
     group->start(QAbstractAnimation::DeleteWhenStopped);
 }
+
 
 void TStackedWidget::horizontalSlideAnimation(int index)
 {
@@ -197,7 +152,7 @@ void TStackedWidget::horizontalSlideAnimation(int index)
     QWidget* nextWidget = widget(index);
 
     if (!currentWidget || !nextWidget) {
-        processNextAnimation();
+        m_isAnimating = false;
         return;
     }
 
@@ -219,10 +174,10 @@ void TStackedWidget::horizontalSlideAnimation(int index)
         currentEndRect.moveLeft(width());
     }
 
-    nextWidget->setGeometry(nextStartRect);
+    //nextWidget->setGeometry(nextStartRect);
 
     // Create animation group
-    QParallelAnimationGroup* group = new QParallelAnimationGroup(this);
+    QParallelAnimationGroup* group=new QParallelAnimationGroup(this);
 
     // Current widget animation
     QPropertyAnimation* currentAnim = new QPropertyAnimation(currentWidget, "geometry", group);
@@ -238,12 +193,11 @@ void TStackedWidget::horizontalSlideAnimation(int index)
     nextAnim->setEndValue(nextEndRect);
     nextAnim->setEasingCurve(m_curve);
 
-    // Connect finished signal
-    connect(group, &QParallelAnimationGroup::finished, this, [this, index]() {
+    connect(group, &QParallelAnimationGroup::finished, this, [this,group, index]() {
         QStackedWidget::setCurrentIndex(index);
-        cleanupAfterAnimation();
+        m_isAnimating = false;
         emit animationFinished();
-        processNextAnimation();
+        group->clear();
     });
 
     group->start(QAbstractAnimation::DeleteWhenStopped);
@@ -255,7 +209,7 @@ void TStackedWidget::verticalSlideAnimation(int index)
     QWidget* nextWidget = widget(index);
 
     if (!currentWidget || !nextWidget) {
-        processNextAnimation();
+        m_isAnimating = false;
         return;
     }
 
@@ -299,20 +253,12 @@ void TStackedWidget::verticalSlideAnimation(int index)
     // Connect finished signal
     connect(group, &QParallelAnimationGroup::finished, this, [this,group, index]() {
         QStackedWidget::setCurrentIndex(index);
-        cleanupAfterAnimation();
+        m_isAnimating = false;
         emit animationFinished();
-        processNextAnimation();
-
         group->clear();
     });
 
     group->start(QAbstractAnimation::DeleteWhenStopped);
-}
-
-void TStackedWidget::cleanupAfterAnimation()
-{
-    // Any additional cleanup can be done here
-    m_isAnimating = false;
 }
 
 void TStackedWidget::accordionAnimation(int index)
@@ -321,7 +267,7 @@ void TStackedWidget::accordionAnimation(int index)
     QWidget* nextWidget = widget(index);
 
     if (!currentWidget || !nextWidget) {
-        processNextAnimation();
+        m_isAnimating = false;
         return;
     }
 
@@ -374,9 +320,8 @@ void TStackedWidget::accordionAnimation(int index)
 
     connect(sequence, &QSequentialAnimationGroup::finished, this, [this, index]() {
         QStackedWidget::setCurrentIndex(index);
-        cleanupAfterAnimation();
+        m_isAnimating = false;
         emit animationFinished();
-        processNextAnimation();
     });
 
     sequence->start(QAbstractAnimation::DeleteWhenStopped);
@@ -388,7 +333,7 @@ void TStackedWidget::crossFadeAnimation(int index)
     QWidget* nextWidget = widget(index);
 
     if (!currentWidget || !nextWidget) {
-        processNextAnimation();
+        m_isAnimating = false;
         return;
     }
 
@@ -426,9 +371,8 @@ void TStackedWidget::crossFadeAnimation(int index)
         currentWidget->setGraphicsEffect(nullptr);
         nextWidget->setGraphicsEffect(nullptr);
         QStackedWidget::setCurrentIndex(index);
-        cleanupAfterAnimation();
+        m_isAnimating = false;
         emit animationFinished();
-        processNextAnimation();
     });
 
     group->start(QAbstractAnimation::DeleteWhenStopped);
@@ -440,7 +384,6 @@ void TStackedWidget::rotateAnimation(int index)
     QWidget* nextWidget = widget(index);
 
     if (!currentWidget || !nextWidget || currentWidget == nextWidget) {
-        processNextAnimation();
         return;
     }
 
@@ -490,13 +433,9 @@ void TStackedWidget::rotateAnimation(int index)
 
     connect(group, &QParallelAnimationGroup::finished, this, [this, index, currentWidget, nextWidget]() {
         QStackedWidget::setCurrentIndex(index);
-        currentWidget->setGraphicsEffect(nullptr);
-        nextWidget->setGraphicsEffect(nullptr);
         currentWidget->move(0, 0); // Reset position
         nextWidget->move(0, 0);   // Reset position
         cleanupAfterAnimation();
-        emit animationFinished();
-        processNextAnimation();
     });
 
     group->start(QAbstractAnimation::DeleteWhenStopped);
@@ -507,7 +446,6 @@ void TStackedWidget::zoomFadeAnimation(int index)
     QWidget* nextWidget = widget(index);
 
     if (!currentWidget || !nextWidget || currentWidget == nextWidget) {
-        processNextAnimation();
         return;
     }
 
@@ -579,9 +517,38 @@ void TStackedWidget::zoomFadeAnimation(int index)
         currentWidget->resize(this->size()); // Reset size
         nextWidget->resize(this->size());    // Reset size
         cleanupAfterAnimation();
-        emit animationFinished();
-        processNextAnimation();
+
     });
 
     group->start(QAbstractAnimation::DeleteWhenStopped);
 }
+
+void TStackedWidget::setCurve(QEasingCurve curve)
+{
+    m_curve = curve;
+}
+
+void TStackedWidget::setAnimationDuration(int duration)
+{
+    m_duration = qMax(166, duration); // Minimum 50ms duration
+}
+
+void TStackedWidget::setAnimationType(Type type)
+{
+    m_type = type;
+}
+
+void TStackedWidget::setBlurEffectEnabled(bool enabled)
+{
+    m_blurEnabled = enabled;
+}
+
+
+void TStackedWidget::cleanupAfterAnimation()
+{
+    m_isAnimating=false;
+    emit animationFinished();
+
+    update();
+}
+

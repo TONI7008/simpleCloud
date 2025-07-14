@@ -5,7 +5,6 @@
 #include <QTimer>
 
 class Loader;
-
 class ThreadManager;
 
 class ThreadManagerHelper : public QObject
@@ -16,12 +15,12 @@ public:
     ~ThreadManagerHelper();
     void Upload(ThreadManager*,QString filename, QString username, Loader* loader);
     void Download(ThreadManager*,QString filename, QString username, Loader* loader);
-    void setFileSize(qint64 fs) {fileSize=fs;}
+    void setFileSize(qint64 fs);
 signals:
     void doneUploading();
     void doneDownloading();
 private:
-    QTimer* m_timer;
+    QTimer* m_timer=nullptr;
     qint64 m_value,c_value,fileSize;
 };
 

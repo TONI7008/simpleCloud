@@ -3,10 +3,10 @@
 
 #include "uclient.h"
 #include "dclient.h"
-#include "mainthread.h"
-#include "tcloud.h"
+#include "networkagent.h"
+#include "tcloud.hpp"
 #include "loader.h"
-#include "barupdater.h"
+#include "barupdater.hpp"
 
 ThreadManagerHelper::ThreadManagerHelper(QObject *parent)
     : QObject{parent},m_timer(new QTimer(this)),m_value(0),c_value(0),fileSize(0)
@@ -40,6 +40,7 @@ void ThreadManagerHelper::Upload(ThreadManager *manager,QString filename, QStrin
 
 
     fileSize=client->getFileSize();
+    BarUpdater::addSize(fileSize);
 
     m_timer->setSingleShot(true);
 
@@ -174,4 +175,9 @@ void ThreadManagerHelper::Download(ThreadManager *manager, QString filename, QSt
     thread1->start();
     thread2->start(QThread::HighPriority);
     manager->Dlist.append(client);
+}
+
+void ThreadManagerHelper::setFileSize(qint64 fs) {
+    fileSize=fs;
+    BarUpdater::addSize(fileSize);
 }

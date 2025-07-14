@@ -6,7 +6,7 @@ QList<BackgroundFrame*> BackgroundFrame::m_list;
 BackgroundFrame::BackgroundFrame(QWidget *parent)
     : TFrame{parent}
 {
-    deleteButton = new QToolButton(this);
+    deleteButton = new QPushButton(this);
     setupDeleteButton();
 
     connect(this, &BackgroundFrame::Clicked, this, [this] {
@@ -16,20 +16,20 @@ BackgroundFrame::BackgroundFrame(QWidget *parent)
     });
 
     setBorderSize(4);
-    setRoundness(15);
+    setBorderRadius(15);
 
     QGridLayout* layout = new QGridLayout(this);
     layout->setAlignment(Qt::AlignBottom | Qt::AlignRight);
     layout->addWidget(deleteButton);
-    layout->setContentsMargins(1, 1, 1, 1);  // Add some margins
+    layout->setContentsMargins(1, 1, 3, 3);  // Add some margins
     setLayout(layout);
 
-    connect(deleteButton, &QToolButton::clicked, this, [this] {
+    connect(deleteButton, &QPushButton::clicked, this, [this] {
         m_list.removeOne(this);
         emit kill();
     });
 
-    setClickInterval(60);
+    setClickInterval(100);
     updateAppearance();
 }
 
@@ -40,7 +40,7 @@ BackgroundFrame::~BackgroundFrame()
 
 void BackgroundFrame::setupDeleteButton()
 {
-    deleteButton->setToolButtonStyle(Qt::ToolButtonIconOnly);
+    //deleteButton->setToolButtonStyle(Qt::ToolButtonIconOnly);
     deleteButton->setIcon(QIcon(":/icons/deletewhite.svg"));
     deleteButton->setIconSize(QSize(28, 28));
     deleteButton->setFixedSize(32, 32);

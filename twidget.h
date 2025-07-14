@@ -13,7 +13,12 @@
 #include <QFile>
 #include <QShowEvent>
 
-class TWidget : public QWidget
+#include <QWidget>
+#include <QMouseEvent>
+#include <QApplication>
+#include "margindetectingwidget.h"
+
+class TWidget : public MarginDetectingWidget
 {
     Q_OBJECT
 public:
