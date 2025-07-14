@@ -1,12 +1,14 @@
 #include "signuppage.h"
 #include "ui_signuppage.h"
 
-#include "mainthread.h"
+#include "networkagent.h"
 #include "tstackedwidget.h"
 #include "tmessagebox.h"
+#include "inputdialog.h"
+#include "tnotification.h"
 
 
-SignUpPage::SignUpPage(mainThread* con,TStackedWidget* stack,QWidget *parent)
+SignUpPage::SignUpPage(NetworkAgent* con,TStackedWidget* stack,QWidget *parent)
     : TWidget(parent)
     , ui(new Ui::SignUpPage),
     m_thread(con),
@@ -30,14 +32,27 @@ SignUpPage::SignUpPage(mainThread* con,TStackedWidget* stack,QWidget *parent)
         }
     });
 
-    connect(m_thread, &mainThread::registerSuccess, this, [&]{
+    connect(m_thread, &NetworkAgent::registerSuccess, this, [&]{
         stop();
     });
-    connect(m_thread, &mainThread::registerContinue, this, [&]{
+    connect(m_thread, &NetworkAgent::registerContinue, this, [&]{
         stop();
+        InputDialog* dialog=InputDialog::instance();
+        dialog->setPurpose(InputDialog::AuthentificationCode);
+        QEventLoop loop;
+        connect(dialog,&InputDialog::codeReady,&loop,[&](QString verifNumber){
+            QString usr=ui->username->text();
+            QString passw=ui->password->text();
+            QString email=ui->email->text();
+            m_thread->signUpConfirm(usr,email,passw,verifNumber);
+            loop.quit();
+        });
+
+        dialog->show();
+        loop.exec();
     });
-    connect(m_thread, &mainThread::registerFailed, this, [&](QString error){
-        qDebug() << "error : " << error;
+    connect(m_thread, &NetworkAgent::registerFailed, this, [&](QString error){
+        TNotifaction::instance()->setMessage(error,true);
         stop();
     });
     connect(ui->loginButton,&QPushButton::clicked,this,[this]{
@@ -74,14 +89,12 @@ void SignUpPage::signUp()
     QString email=ui->email->text();
     if(usr.isEmpty() || passw.isEmpty() || email.isEmpty()){
         TMessageBox b;
-        b.setAttribute(Qt::WA_TranslucentBackground);
         b.critical(this,"missing data","username or password not provided");
         b.show();
         return;
     }
     if(ui->password2->text()!=passw){
         TMessageBox b;
-        b.setAttribute(Qt::WA_TranslucentBackground);
         b.critical(this,"wrong password","passwords dont match");
         stop();
         return;

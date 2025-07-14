@@ -3,7 +3,7 @@
 
 #include "tfilemanager.h"
 #include "twidget.h"
-#include "tcloud.h"
+#include "tcloud.hpp"
 #include <QtConcurrent/QtConcurrent>
 
 class TCloudElt;
@@ -13,6 +13,7 @@ class TFile;
 class mainThread;
 class ThreadManager;
 class TGridLayout;
+class TClipBoard;
 
 
 class TFileWidget : public TWidget

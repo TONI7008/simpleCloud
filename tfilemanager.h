@@ -14,9 +14,11 @@ class TWidget;
 class HoverButton;
 class TStackedWidget;
 class ThreadManager;
-class mainThread;
+class NetworkAgent;
 class TFileInfo;
 class TLineEdit;
+class dynamicFrameAssistant;
+class WaitingSpinnerWidget;
 
 
 
@@ -24,7 +26,9 @@ class TFileManager : public QObject
 {
     Q_OBJECT
 public:
-    explicit TFileManager(ThreadManager*,mainThread*,QVBoxLayout*,HoverButton* prev, HoverButton* next,HoverButton* search,TLineEdit *line,TStackedWidget* stackW,QObject *parent = nullptr);
+    explicit TFileManager(ThreadManager*,NetworkAgent*,QVBoxLayout*,
+                          HoverButton* prev, HoverButton* next,HoverButton* search,
+                          TLineEdit *line,TStackedWidget* stackW,QObject *parent = nullptr);
     ~TFileManager();
     static TFolder* baseFolder;
     static TFolder* deletedFolder;
@@ -58,17 +62,18 @@ signals:
 
 private:
     QTimer* m_timer=nullptr;
-    short animTime=270;
+    short animTime=305;
 
 
     ThreadManager* m_Tmanager=nullptr;
-    mainThread* m_Mthread=nullptr;
+    NetworkAgent* m_Mthread=nullptr;
 
     HoverButton* m_prev=nullptr;
     HoverButton* m_next=nullptr;
     HoverButton* m_search=nullptr;
     TLineEdit *m_lineEdit=nullptr;
     TStackedWidget* m_stackW=nullptr;
+    WaitingSpinnerWidget* m_spinner=nullptr;
 
     bool searching;
     bool available;
@@ -76,6 +81,9 @@ private:
 
     QString m_lastPath;
     QString m_path;
+
+    QList<TFolder*> nextList;
+    TFolder* helperFolder=nullptr;
 
 };
 

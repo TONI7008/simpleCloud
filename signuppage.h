@@ -6,7 +6,7 @@
 
 #include "twidget.h"
 
-class mainThread;
+class NetworkAgent;
 class TStackedWidget;
 
 
@@ -19,7 +19,7 @@ class SignUpPage : public TWidget
     Q_OBJECT
 
 public:
-    explicit SignUpPage(mainThread* con,TStackedWidget* stack,QWidget *parent = nullptr);
+    explicit SignUpPage(NetworkAgent* con,TStackedWidget* stack,QWidget *parent = nullptr);
     ~SignUpPage();
 
     void start(const QString&);
@@ -31,7 +31,7 @@ signals:
 
 private:
     Ui::SignUpPage *ui;
-    mainThread* m_thread=nullptr;
+    NetworkAgent* m_thread=nullptr;
     TStackedWidget* m_stack=nullptr;
 
     void signUp();

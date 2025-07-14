@@ -5,7 +5,9 @@
 #include "tfile.h"
 #include "tfilewidget.h"
 #include "tstackedwidget.h"
+#include "iconcolorizer.h"
 #include "tlineedit.hpp"
+#include "waitingspinner.h"
 
 #include <QLabel>
 
@@ -14,13 +16,28 @@ TFolder* TFileManager::deletedFolder=nullptr;
 TFolder* TFileManager::searchFolder=nullptr;
 
 
-TFileManager::TFileManager(ThreadManager* t,mainThread* mt,QVBoxLayout* layout,HoverButton* prev, HoverButton* next, HoverButton* search, TLineEdit *line,TStackedWidget* stackW, QObject *parent)
-    : QObject{parent},m_Tmanager(t), m_Mthread(mt), m_prev(prev), m_next(next), m_search(search), m_lineEdit(line), m_stackW(stackW),available(true),m_recursiveSearch(true),m_lastPath("")
+TFileManager::TFileManager(ThreadManager* t,NetworkAgent* mt,QVBoxLayout* layout,
+                           HoverButton* prev, HoverButton* next, HoverButton* search,
+                           TLineEdit *line,TStackedWidget* stackW,
+                           QObject *parent)
+    : QObject{parent},m_Tmanager(t),
+    m_Mthread(mt),
+    m_prev(prev),
+    m_next(next),
+    m_search(search),
+    m_lineEdit(line),
+    m_stackW(stackW),
+    available(true),
+    m_recursiveSearch(true),
+    m_lastPath("")
 {
     searching=false;
 
     TFileInfo defaultInf;
     defaultInf.filepath=":/";
+
+    TFolder::setDisplayStackWidget(m_stackW);
+
     baseFolder = new TFolder(defaultInf, true, nullptr,m_Tmanager,m_Mthread ,this,m_stackW);
     deletedFolder = new TFolder(defaultInf, true, nullptr,m_Tmanager,m_Mthread ,this,m_stackW);
     searchFolder = new TFolder(defaultInf, true, nullptr,m_Tmanager,m_Mthread ,this,m_stackW);
@@ -37,9 +54,9 @@ TFileManager::TFileManager(ThreadManager* t,mainThread* mt,QVBoxLayout* layout,H
     searchFolder->setObjectName("searchTFolder");
 
 
-    baseFolder->setRoundness(15);
-    searchFolder->setRoundness(15);
-    deletedFolder->setRoundness(15);
+    baseFolder->setBorderRadius(15);
+    searchFolder->setBorderRadius(15);
+    deletedFolder->setBorderRadius(15);
 
 
 
@@ -66,10 +83,12 @@ TFileManager::TFileManager(ThreadManager* t,mainThread* mt,QVBoxLayout* layout,H
     });
 
     connect(m_lineEdit,&TLineEdit::focusEntered,this,[this]{
+        m_spinner->start();
+        helperFolder=TFolder::currentFolder();
         if(isSearching()){
-            m_search->setIcon(QIcon(":/icons/closeblue.svg"));
+            m_search->setIcon(IconColorizer::colorize(QIcon(":/icons/closewhite.svg")));
         }else{
-            m_search->setIcon(QIcon(":/icons/searchblue.svg"));
+            m_search->setIcon(IconColorizer::colorize(QIcon(":/icons/searchwhite.svg")));
         }
     });
     connect(m_lineEdit,&TLineEdit::focusLeave,this,[this]{
@@ -81,46 +100,66 @@ TFileManager::TFileManager(ThreadManager* t,mainThread* mt,QVBoxLayout* layout,H
     });
 
 
-    m_stackW->addWidget(baseFolder);
-    m_stackW->addWidget(searchFolder);
-    m_stackW->addWidget(deletedFolder);
+    searchFolder->openFolder();
+    deletedFolder->openFolder();
+    baseFolder->openFolder();
+
+    m_spinner=new WaitingSpinnerWidget(searchFolder->m_scrollArea,true,true);
+    m_spinner->setMinimumTrailOpacity(20.0);
+    m_spinner->setTrailFadePercentage(50.0);
+    m_spinner->setNumberOfLines(12);
+    m_spinner->setLineLength(16);
+    m_spinner->setLineWidth(5);
+    m_spinner->setInnerRadius(14);
+    m_spinner->setRevolutionsPerSecond(1.5);
+    m_spinner->setColor(IconColorizer::dominantColor());
+    m_spinner->hide();
 }
 
 void TFileManager::setSearch(bool s)
 {
     searching = s;
     if (s) {
-        m_search->setIcon(QIcon(":/icons/closeblue.svg"));
-        m_stackW->setCurrentWidget(searchFolder);
+        m_search->setIcon(IconColorizer::colorize(QIcon(":/icons/closewhite.svg")));
+        searchFolder->openFolder();
+
     } else {
         m_search->setIcon(QIcon(":/icons/searchwhite.svg"));
         m_lineEdit->clear();
         m_lineEdit->clearFocus();
-        m_stackW->setCurrentWidget(baseFolder);
+        baseFolder->openFolder();
+
     }
 }
 
 void TFileManager::searchFile(const QString& str)
 {
+    m_spinner->start();
+
     if (str.isEmpty()) return;
     if (!searching) setSearch(true);
 
     TFolder::SFolderRegistry.clear();
-    TFolder::SFolderHistory.clear();
     searchFolder->removeAll();
 
-    const QList<eltCore> & tempList = m_recursiveSearch ? TFolder::FolderHistory[TFolder::currentFolderIndex]->getList() : TFolder::FolderHistory[TFolder::currentFolderIndex]->m_eltList; // Avoids detachment
+    TFolder* folder=helperFolder;
+    const QList<eltCore> & tempList = m_recursiveSearch ? folder->getList() : folder->m_eltList; // Avoids detachment
 
     QList<eltCore> resultList;
     resultList.reserve(tempList.size());
 
-    for (eltCore elt : std::as_const(tempList)) { // Prevent detachment
-        if (elt.name.toLower().contains(str.toLower())) {
+    qDebug() << "next list size :"<<nextList.size();
+
+    for (eltCore elt : std::as_const(tempList)) {        // Prevent detachment
+        //if(elt)
+        if (elt.name.toLower().contains(str.toLower()) && elt.type==TCloudElt::File) {
             resultList.append(elt);
         }
     }
 
+
     if(resultList.isEmpty()){
+        m_spinner->stop();
         QLabel* label=new QLabel(searchFolder->fileWidget());
         //label->setTextFormat(Qt::RichText);
         label->setText("🧐 No File Found !");
@@ -155,7 +194,9 @@ void TFileManager::searchFile(const QString& str)
     }
 
     searchFolder->fileWidget()->getLayout()->rearrangeWidgets();
+    m_spinner->stop();
 }
+
 
 
 TFileManager::~TFileManager()
@@ -164,6 +205,9 @@ TFileManager::~TFileManager()
     deletedFolder->deleteLater();
     searchFolder->deleteLater();
     delete m_timer;
+    if(m_spinner){
+        delete m_spinner;
+    }
 }
 
 void TFileManager::setup(QList<TFileInfo> infoList)
@@ -182,11 +226,10 @@ void TFileManager::setup(QList<TFileInfo> infoList)
     baseFolder->updateInfo();
     deletedFolder->updateInfo();
 
-    TFolder::FolderHistory.append(baseFolder);
-    TFolder::currentFolderIndex = 0;
+    baseFolder->openFolder();
 
     m_stackW->update();
-    m_stackW->setCurrentWidget(baseFolder);
+    TCLOUD::Wait(100);
 
     if(!m_lastPath.isEmpty()) gotoFolder(m_lastPath);
 
@@ -203,24 +246,23 @@ void TFileManager::setupAsync(QList<TFileInfo> infoList)
         baseFolder->updateInfo();
         deletedFolder->updateInfo();
 
-        TFolder::FolderHistory.append(baseFolder);
-        TFolder::currentFolderIndex = 0;
+        baseFolder->openFolder();
 
         m_stackW->update();
 
-        if(m_stackW->currentWidget()!=baseFolder){
-            m_stackW->setCurrentWidget(baseFolder);
-        }else{
-            baseFolder->show();
-        }
-
         if(!m_lastPath.isEmpty()) gotoFolder(m_lastPath);
 
-        emit doneSettingUpFileSys();
 
         deletedFolder->setFavoriteLayout(deletedFolder->favoriteLayout());
         baseFolder->setFavoriteLayout(deletedFolder->favoriteLayout());
         searchFolder->setFavoriteLayout(deletedFolder->favoriteLayout());
+
+        //qDebug() << "tfolder folder registry start";
+        //qDebug() << TFolder::FolderRegistry;
+        //qDebug() << "tfolder folder registry stop";
+
+        TCLOUD::Wait(100);
+        emit doneSettingUpFileSys();
         return;
     }
 
@@ -242,60 +284,45 @@ void TFileManager::setupAsync(QList<TFileInfo> infoList)
 
 void TFileManager::back()
 {
-    //qDebug() << "current TFolder index"<< TFolder::currentTFolderIndex;
-    if (TFolder::currentFolderIndex > 0) {
-        if (!available) return;
-        available = false;
-        m_timer->start(animTime);
-        TFolder* previousTFolder = TFolder::FolderHistory[TFolder::currentFolderIndex];
-        if(TFolder::currentFolderIndex-1>=0) emit pathChanged(TFolder::FolderHistory[TFolder::currentFolderIndex-1]->path());
-        TFolder::currentFolderIndex--;
-        previousTFolder->setIconView();
-    }
+    nextList.append(TFolder::currentFolder());
+    TFolder::currentFolder()->openPreviousFolder();
+    emit pathChanged(TFolder::currentFolder()->path());
 }
 
 void TFileManager::next()
 {
-    if (TFolder::currentFolderIndex < TFolder::FolderHistory.size() - 1) {
-        if (!available) return;
-        available = false;
-        m_timer->start(animTime);
-        TFolder::currentFolderIndex++;
-        TFolder* nextTFolder = TFolder::FolderHistory[TFolder::currentFolderIndex];
-        emit pathChanged(nextTFolder->path());
-        nextTFolder->display();
+    if(!nextList.isEmpty()){
+        TFolder* nFolder=nextList.takeLast();
+
+        nFolder->openFolder();
+        emit pathChanged(nFolder->path());
     }
 }
 
 void TFileManager::showDeleted()
 {
-    if (m_stackW->currentWidget() != deletedFolder) {
-        m_stackW->setCurrentWidget(deletedFolder);
-    }
+    deletedFolder->openFolder();
+    emit pathChanged(deletedFolder->path());
 }
 
 void TFileManager::showHome()
 {
     if(isSearching()){m_search->click();}
-    if (m_stackW->currentWidget() == baseFolder) {
-        m_prev->setDisabled(true);
-        while (TFolder::FolderHistory[TFolder::currentFolderIndex] != baseFolder) {
-            back();
-            TCLOUD::Wait(animTime);
-        }
-        m_prev->setDisabled(false);
-    } else {
-        m_stackW->setCurrentWidget(baseFolder);
-
-    }
+    baseFolder->openFolder();
+    emit pathChanged(baseFolder->path());
 }
 
 
 void TFileManager::makeTransparent(bool enable)
 {
-    baseFolder->setEnableBackground(!enable);
-    searchFolder->setEnableBackground(!enable);
-    deletedFolder->setEnableBackground(!enable);
+    if(!enable){
+        m_stackW->setStyleSheet("background:rgba(40,40,40,0.7);");
+
+    }else{
+        m_stackW->setStyleSheet("");
+    }
+    m_stackW->update();
+
 }
 
 qint64 TFileManager::usage() const
@@ -316,7 +343,7 @@ void TFileManager::setRecursiveSearch(bool newRecursiveSearch)
 
 void TFileManager::refresh()
 {
-    m_lastPath=TFolder::FolderHistory[TFolder::currentFolderIndex]->path();
+    m_lastPath=TFolder::currentFolder()->path();
 
     TFolder::reset();
 
@@ -327,7 +354,12 @@ void TFileManager::refresh()
 
 void TFileManager::gotoFolder(const QString &path)
 {
-    qDebug() << "went to folder :"<< path;
+    TFolder* folder=TFolder::FolderRegistry[path];
+    if(folder){
+        folder->openFolder();
+    }else{
+        qDebug() << "failed to go to "<<path;
+    }
 }
 
 QString TFileManager::path() const

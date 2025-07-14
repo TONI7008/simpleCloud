@@ -3,11 +3,12 @@
 #include "tmenu.h"
 #include "tfile.h"
 #include "threadmanager.h"
-#include "mainthread.h"
+#include "networkagent.h"
 #include "tgridlayout.h"
 #include "tfilechecker.h"
 #include "inputdialog.h"
 #include "tclipboard.h"
+#include "tnotification.h"
 
 #include <algorithm>
 #include <QClipboard>
@@ -53,6 +54,12 @@ TFileWidget::TFileWidget(TFolder* pfolder,TFileManager* fileM, QWidget* parent)
     connect(this, &TFileWidget::nextPressed,this, [this]{
         m_fileManager->next();
     });
+
+    setStyleSheet("QWidget{"
+                  "background:transparent;"
+                  "border:none;"
+                  "border-radius:0px;"
+                  "}");
 }
 
 TFileWidget::~TFileWidget() {
@@ -180,7 +187,7 @@ void TFileWidget::settingUp() {
        InputDialog* ins=InputDialog::instance();
         ins->setPurpose(InputDialog::CreateFolder);
         *ins << getPath();
-        ins->show();
+        ins->exec();
 
         QEventLoop loop;
         connect(ins, &InputDialog::DoneCreatingFolder,&loop,[this,&loop](const QString& str){
@@ -240,7 +247,7 @@ void TFileWidget::settingUp() {
 
 // Helper function to process the `FileList`
 void TFileWidget::processListSelection(const std::function<void(TCloudElt*)>& process) {
-    if (fileList.size() > 20) {
+    if (fileList.size() > 10) {
         QtConcurrent::blockingMap(fileList, process);
     } else {
         for (auto* elt : std::as_const(fileList)) {
@@ -325,29 +332,66 @@ void TFileWidget::selectItemsInRectangle() {
     update(); // Request a single repaint
 }
 
-void TFileWidget::handlePaste()
+/*void TFileWidget::handlePaste()
 {
-    TClipBoard* clipBoard=TClipBoard::instance();
-    //TClipBoard::transactionType type=clipBoard->type();
+    TClipBoard* clipBoard = TClipBoard::instance();
+    if (!clipBoard) return;
 
-    for(auto &elt : clipBoard->items()){
-        if(!TFileChecker::instance()->isOk(elt.name,m_Pfolder)){
-            qDebug() << elt.name <<" already exists !";
+    // Process local items
+    TFileChecker* checker = TFileChecker::instance();
+    if (!checker) return;
+
+    for (auto& elt : clipBoard->items()) {
+        if (!checker->isOk(elt.name, m_Pfolder)) {
+            if (TNotifaction* frame = TNotifaction::instance()) {
+                frame->setMessage(elt.name + " already exists!");
+            }
             continue;
         }
-        //qDebug() <<"element names ="<< elt.name ;
 
-        elt.info.filepath=getPath()+"/"+elt.name;
+        elt.info.filepath = elt.name;
+        TFolder::setupFolder(m_Pfolder, elt.info);
+    }
 
-        elt.info.filepath=TFileManager::baseFolder->Organise(elt.info.filepath);
-        TFolder::setupFolder(TFileManager::baseFolder,elt.info);
+    // Final updates
+    m_Pfolder->updateInfo();
+    m_Pfolder->setFavoriteLayout(m_Pfolder->m_favoriteLayout);
+    clipBoard->clear();
+}*/
+
+void TFileWidget::handlePaste() {
+    TClipBoard* clipBoard = TClipBoard::instance();
+    if (!clipBoard || clipBoard->items().isEmpty()) return;
+
+    connect(clipBoard, &TClipBoard::operationDone, this, [=](bool success, const QString& msg) {
+        if (!success) {
+            if (TNotifaction* frame = TNotifaction::instance())
+                frame->setMessage(msg);
+            return;
+        }
+
+        TFileChecker* checker = TFileChecker::instance();
+        if (!checker) return;
+
+        for (const eltCore& elt : clipBoard->items()) {
+            if (!checker->isOk(elt.name, m_Pfolder)) continue;
+
+            TFileInfo updatedInfo = elt.info;
+            updatedInfo.filepath = elt.name;
+
+            if (elt.type == TCloudElt::Folder)
+                TFolder::setupFolder(m_Pfolder, updatedInfo);
+
+            m_Pfolder->updateInfo();
+        }
 
         m_Pfolder->updateInfo();
-    }
-    m_Pfolder->setFavoriteLayout(m_Pfolder->m_favoriteLayout);
+        m_Pfolder->setFavoriteLayout(m_Pfolder->m_favoriteLayout);
+    }, Qt::SingleShotConnection);
 
-    clipBoard->clear();
+    clipBoard->pasteTo(m_Pfolder, m_Pfolder->getNetworkAgent());
 }
+
 
 void TFileWidget::clearSelection() {
     // Only clear items that are actually selected
@@ -363,15 +407,15 @@ void TFileWidget::clearSelection() {
 
 
 void TFileWidget::mouseMoveEvent(QMouseEvent* event) {
-    if (selecting) {
+    TWidget::mouseMoveEvent(event);
+    if (selecting && (event->buttons() & Qt::LeftButton)) {
         updateSelectionRectangle(event->pos());
         selectItemsInRectangle();
     }
-    TWidget::mouseMoveEvent(event);
 }
 
 void TFileWidget::paintEvent(QPaintEvent* event) {
-    QWidget::paintEvent(event);
+    TWidget::paintEvent(event);
     if (selecting) {
         QPainter painter(this);
         painter.setRenderHint(QPainter::Antialiasing, false); // Faster without antialiasing
@@ -471,7 +515,7 @@ void TFileWidget::dropEvent(QDropEvent *event) {
                     });
                 }
             }else{
-                QMessageBox::critical(this,"identicals files","un fichier contenant le meme nom existe deja veuillez le renomer");
+                TNotifaction::instance()->setMessage("identicals files : un fichier contenant le meme nom existe deja veuillez le renomer",true);
             }
 
         }
@@ -550,7 +594,8 @@ void TFileWidget::createDir(QString name)
 
     TFolder* folder = new TFolder(inf,false,m_Pfolder,m_Pfolder->m_Tmanager,m_Pfolder->m_mThread,m_fileManager,this);
     m_Pfolder->add(folder);
-    fileList.append(folder);
+
+    folder->show();
     m_Pfolder->updateInfo();
 }
 

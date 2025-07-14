@@ -5,19 +5,18 @@
 #include <QResizeEvent>
 #include <QTimer>
 
-PopoutFrame::PopoutFrame(QWidget* parent) : TFrame(parent), animationGroup(new QSequentialAnimationGroup(this)) {
+PopoutFrame::PopoutFrame(QWidget* parent) :
+    TFrame(parent),
+    animationGroup(new QSequentialAnimationGroup(this))
+{
     setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Preferred);
     setAttribute(Qt::WA_Hover);
 
     setWindowFlag(Qt::FramelessWindowHint);
 
     setMouseTracking(true);
-
-
-    setBorder(true);
-    setBorderSize(4);
-
-    setEnableBackground(true);
+    setCornerStyle(TFrame::CornerStyle::Default);
+    disableBackground();
 
 
 }
@@ -32,11 +31,8 @@ void PopoutFrame::popout() {
     popout(m_popoutDuration, m_popoutScale);
 }
 
-
 QRect PopoutFrame::updateExpandedGeometry() {
-    int dw = width() * (m_popoutScale - 1.0) * m_widthExpansionFactor;
-    int dh = height() * (m_popoutScale - 1.0);
-    QRect expandedGeometry = originalGeometry.adjusted(-dw / 2, -dh / 2, dw / 2, dh / 2);
+    QRect expandedGeometry = calculateExpandedGeometry(originalGeometry);
 
     // Apply max width constraint if set
     if (m_popoutMaxWidth > 0 && expandedGeometry.width() > m_popoutMaxWidth) {
@@ -74,37 +70,36 @@ void PopoutFrame::setEasingCurve(QEasingCurve::Type curve) {
 }
 
 void PopoutFrame::setPopoutColor(const QColor& color) {
-    borderColor = color;
-    setBorderColor(color);
+    m_borderColor = color;
+    QString style=styleSheet();
+    style.replace("rgb(71,158,245)",color.name());
+    setStyleSheet(style);
+    repaint();
 }
 
 void PopoutFrame::setPopoutMaxWidth(int maxWidth) {
     m_popoutMaxWidth = maxWidth;
-    setMaximumWidth(maxWidth);
 }
 
 void PopoutFrame::setPopoutMaxHeight(int maxHeight) {
     m_popoutMaxHeight = maxHeight;
-    setMaximumHeight(m_popoutMaxHeight);
+}
+
+void PopoutFrame::setPopoutDirection(PopoutDirections direction) {
+    m_direction = direction;
 }
 
 void PopoutFrame::moveEvent(QMoveEvent* event) {
-    // Update original geometry if we move while not expanded
     if (geometry().size() == originalGeometry.size()) {
         originalGeometry.moveTo(event->pos());
     }
-    TFrame::moveEvent(event);
-}
-
-void PopoutFrame::resizeEvent(QResizeEvent *event)
-{
-    TFrame::resizeEvent(event);
-    setRoundness(height()/2);
+    QFrame::moveEvent(event);
 }
 
 
 void PopoutFrame::popout(int duration, qreal scale) {
-    m_popoutScale=scale;
+    raise();
+    m_popoutScale = scale;
     originalGeometry = geometry();
     QRect expanded = calculateExpandedGeometry(originalGeometry);
 
@@ -127,24 +122,91 @@ void PopoutFrame::popout(int duration, qreal scale) {
     animationGroup->addAnimation(expandAnim);
     animationGroup->addAnimation(shrinkAnim);
     animationGroup->start();
+
+    repaint();
 }
 
 QRect PopoutFrame::calculateExpandedGeometry(const QRect& baseGeometry) {
     int dw = baseGeometry.width() * (m_popoutScale - 1.0) * m_widthExpansionFactor;
     int dh = baseGeometry.height() * (m_popoutScale - 1.0);
-    QRect expanded = baseGeometry.adjusted(-dw / 2, -dh / 2, dw / 2, dh / 2);
 
-    QSize maxSize(m_popoutMaxWidth > 0 ? m_popoutMaxWidth : INT_MAX,
-                  m_popoutMaxHeight > 0 ? m_popoutMaxHeight : INT_MAX);
-    if (expanded.width() > maxSize.width())
-        expanded.setWidth(maxSize.width());
-    if (expanded.height() > maxSize.height())
-        expanded.setHeight(maxSize.height());
+    QSize expandedSize = baseGeometry.size();
+    expandedSize += QSize(dw, dh);
 
-    QPoint center = baseGeometry.center();
-    expanded.moveCenter(center);
-    return expanded;
+    // Apply max size constraints
+    if (m_popoutMaxWidth > 0 && expandedSize.width() > m_popoutMaxWidth) {
+        expandedSize.setWidth(m_popoutMaxWidth);
+    }
+    if (m_popoutMaxHeight > 0 && expandedSize.height() > m_popoutMaxHeight) {
+        expandedSize.setHeight(m_popoutMaxHeight);
+    }
+
+    QPoint expandedPos = calculateExpandedPosition(baseGeometry, expandedSize);
+    return QRect(expandedPos, expandedSize);
 }
+
+QPoint PopoutFrame::calculateExpandedPosition(const QRect& baseGeometry, const QSize& expandedSize) {
+    int dx = expandedSize.width() - baseGeometry.width();
+    int dy = expandedSize.height() - baseGeometry.height();
+
+    // Handle combined directions
+    if (m_direction == (Right | Bottom)) {
+        return QPoint(baseGeometry.x(),
+                      baseGeometry.y());
+    }
+    else if (m_direction == (Right | Top)) {
+        return QPoint(baseGeometry.x(),
+                      baseGeometry.y() - dy);
+    }
+    else if (m_direction == (Left | Bottom)) {
+        return QPoint(baseGeometry.x() - dx,
+                      baseGeometry.y());
+    }
+    else if (m_direction == (Left | Top)) {
+        return QPoint(baseGeometry.x() - dx,
+                      baseGeometry.y() - dy);
+    }
+    // Handle single directions
+    else if (m_direction & Top) {
+        return QPoint(baseGeometry.x() - dx / 2,
+                      baseGeometry.y() - dy);
+    }
+    else if (m_direction & Bottom) {
+        return QPoint(baseGeometry.x() - dx / 2,
+                      baseGeometry.y());
+    }
+    else if (m_direction & Left) {
+        return QPoint(baseGeometry.x() - dx,
+                      baseGeometry.y() - dy / 2);
+    }
+    else if (m_direction & Right) {
+        return QPoint(baseGeometry.x(),
+                      baseGeometry.y() - dy / 2);
+    }
+    // Default to Center
+    return QPoint(baseGeometry.center().x() - expandedSize.width() / 2,
+                  baseGeometry.center().y() - expandedSize.height() / 2);
+}
+
+bool PopoutFrame::blocked() const
+{
+    return m_blocked;
+}
+
+void PopoutFrame::setBlocked(bool newBlocked)
+{
+    m_blocked = newBlocked;
+}
+qreal PopoutFrame::widthExpansionFactor() const
+{
+    return m_widthExpansionFactor;
+}
+
+void PopoutFrame::setWidthExpansionFactor(qreal newWidthExpansionFactor)
+{
+    m_widthExpansionFactor = newWidthExpansionFactor;
+}
+
 
 void PopoutFrame::setMaximumSize(const QSize& size) {
     setPopoutMaxWidth(size.width());
@@ -153,33 +215,54 @@ void PopoutFrame::setMaximumSize(const QSize& size) {
 }
 
 void PopoutFrame::enterEvent(QEnterEvent* event) {
-    if(isHovered) return;
+    if (isHovered || m_blocked)
+        return;
+
+    // Debounce check
+    if (hoverTimer.isValid() && hoverTimer.elapsed() < hoverDebounceThresholdMs)
+        return;
+
     isHovered = true;
     emit hoverStarted();
 
-    if (animationGroup->state() == QAbstractAnimation::Running)
-        animationGroup->stop();
+    hoverTimer.restart();  // Start the debounce timer
+
+    if (animationGroup->state() == QAbstractAnimation::Running){
+        originalGeometry = geometry();
+        startShrinkAnimation();
+        repaint();
+        return;
+    }
 
     originalGeometry = geometry();
     startExpandAnimation();
-    TFrame::enterEvent(event);
+    repaint();
+    QFrame::enterEvent(event);
 }
+
 
 void PopoutFrame::leaveEvent(QEvent* event) {
-    if(!isHovered) return;
-    QTimer::singleShot(m_popoutDuration/2+5,this,[this]{
-        isHovered=false;
-    });
+    if (!isHovered || m_blocked)
+        return;
 
+    isHovered = false;
     emit hoverEnded();
 
-    if (expandAnim && expandAnim->state() == QAbstractAnimation::Running)
+    hoverTimer.restart();  // Prevent immediate re-hover triggering
+
+    if (expandAnim && expandAnim->state() == QAbstractAnimation::Running) {
         expandAnim->stop();
+        startShrinkAnimation();
+        return;
+    }
 
     startShrinkAnimation();
-
-    TFrame::leaveEvent(event);
+    repaint();
+    QFrame::leaveEvent(event);
 }
+
+
+
 
 void PopoutFrame::startExpandAnimation() {
     expandAnim = new QPropertyAnimation(this, "geometry");
@@ -196,7 +279,9 @@ void PopoutFrame::startShrinkAnimation() {
     shrinkAnim->setStartValue(geometry());
     shrinkAnim->setEndValue(originalGeometry);
     shrinkAnim->setEasingCurve(currentCurve);
+    connect(shrinkAnim, &QPropertyAnimation::finished, this, [this]() {
+        update();
+    });
+
     shrinkAnim->start();
 }
-
-

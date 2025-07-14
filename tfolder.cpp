@@ -3,46 +3,45 @@
 #include <QDebug>
 #include <QMessageBox>
 
-#include "tgridlayout.h"
-#include "twidget.h"
 #include "tfile.h"
 #include "tlabel.h"
-#include "tpushbutton.h"
 #include "tmenu.h"
 #include "tfilewidget.h"
-#include "mainthread.h"
+#include "networkagent.h"
 #include "infopage.h"
 #include "inputdialog.h"
 #include "tclipboard.h"
+#include "tstackedwidget.h"
+#include "tnotification.h"
 
 // Initialize static TFolder registry
 QMap<QString, TFolder*> TFolder::FolderRegistry;
-QList<TFolder*> TFolder::FolderHistory;
+
+TFolder* TFolder::m_currentFolder=nullptr;
 
 QMap<QString, TFolder*> TFolder::DFolderRegistry;
-QList<TFolder*> TFolder::DFolderHistory;
 
 QMap<QString, TFolder*> TFolder::SFolderRegistry;
-QList<TFolder*> TFolder::SFolderHistory;
+
 
 int TFolder::currentFolderIndex = -1;
+TStackedWidget* TFolder::displayStackWidget;
 
 // Constructor
-TFolder::TFolder(TFileInfo info, bool base,TFolder* pTFolder,ThreadManager* t,mainThread* mt,TFileManager* fm,QWidget *parent)
-    : TCloudElt(parent),m_mThread(mt),m_Tmanager(t),m_fManager(fm), m_pTFolder(pTFolder),m_base(base)
+TFolder::TFolder(TFileInfo info, bool base,TFolder* pTFolder,ThreadManager* t,NetworkAgent* mt,TFileManager* fm,QWidget *parent)
+    : TCloudElt(parent),m_mThread(mt),m_Tmanager(t),
+    m_fManager(fm),
+    m_pTFolder(pTFolder),m_base(base)
 {
     // Extract TFolder name and set path
     m_info=info;
     m_name = extractFolderName(m_info.filepath);
     m_type=TCloudElt::Folder;
+    m_displayLayout = new QGridLayout(this);
 
     // Set the object name
     setObjectName(m_name);
 
-    // Layout setup
-    QVBoxLayout *layout = new QVBoxLayout(this);
-    layout->setContentsMargins(0, 0, 0,0);
-    setLayout(layout);
 
     // Scroll Area Setup
     setupScrollArea();
@@ -50,27 +49,31 @@ TFolder::TFolder(TFileInfo info, bool base,TFolder* pTFolder,ThreadManager* t,ma
     // If not the base TFolder, create a TFolder icon view
     if (!base) {
         setupFolderIconView();
+    }else{
+        hide();
     }
 
     // File view setup
-    setupFileView();
+    m_fileWidget=new TFileWidget(this,m_fManager);
+
+    m_scrollArea->setWidget(m_fileWidget);
 
     if (!base) {
-        connect(this, &TCloudElt::doubleClicked, this, &TFolder::setFileView);
+        connect(this, &TCloudElt::doubleClicked, this, &TFolder::openFolder);
 
-        if(!pTFolder->m_base){ hide();}
 
         setStyle(false);
         setEnableBackground(false);
         setEnableBackground(false);
     }
 
+    setLayout(m_displayLayout);
+
 }
 
 TFolder::~TFolder()
 {
-    if(!m_WfileList.isEmpty()) qDeleteAll(m_WfileList);
-
+    m_WfileList.clear();
     if(contextMenu) delete contextMenu;
     if(m_deletedMenu) delete m_deletedMenu;
 }
@@ -137,7 +140,7 @@ void TFolder::settingUpMenu()
         });
 
         connect(openAction, &QAction::triggered,this,[&]{
-            setFileView();
+            //setFileView();
         });
 
         connect(deleteAction, &QAction::triggered, this,&TFolder::moveToTrash);
@@ -148,7 +151,9 @@ void TFolder::settingUpMenu()
             copyFolder();
         });
 
-        connect(cutAction, &QAction::triggered,this,&TFolder::cutFolder);
+        connect(cutAction, &QAction::triggered,this,[this]{
+            cutFolder();
+        });
         connect(addBookmarkAction, &QAction::triggered,this,[this]{
             if(!hasBookmark){
                 TFolderLink* link= new TFolderLink(m_info,m_favoriteLayout,m_fManager);
@@ -166,6 +171,27 @@ void TFolder::settingUpMenu()
     connect(this, &TCloudElt::rightClicked, this,&TFolder::handleRightClicked);
 }
 
+void TFolder::openFolder()
+{
+    if(m_currentFolder==this){
+        if(m_scrollArea!=displayStackWidget->currentWidget()){
+            displayStackWidget->setCurrentWidget(m_scrollArea);
+            m_fManager->setPath(path());
+        }
+        return;
+    }
+    m_currentFolder=this;
+    displayStackWidget->setCurrentWidget(m_scrollArea);
+    m_fManager->setPath(path());
+}
+
+void TFolder::openPreviousFolder()
+{
+    if(m_pTFolder){
+        m_pTFolder->openFolder();
+    }
+}
+
 void TFolder::add(TCloudElt* cloudElt)
 {
     if (!cloudElt) {
@@ -179,10 +205,6 @@ void TFolder::add(TCloudElt* cloudElt)
             return;
         }
         file->setParentFolder(this);
-
-
-        m_eltList.append(file->core());
-        m_WfileList.append(file);
     }else if(cloudElt->type()==TCloudElt::Folder){
 
         TFolder* folder=qobject_cast<TFolder*>(cloudElt);
@@ -194,17 +216,13 @@ void TFolder::add(TCloudElt* cloudElt)
         if (!subFolders.contains(folder->name())) {
             subFolders[folder->name()] = folder;
             folder->setParentFolder(this);
-
-            m_eltList.append(folder->core());
-            m_WfileList.append(folder);
-
-            connect(folder, &TFolder::Zoom,this,&TFolder::toggleZoom);
         }
     }
 
-
+    m_eltList.append(cloudElt->core());
+    m_WfileList.append(cloudElt);
     m_fileWidget->add(cloudElt);
-    //updateInfo();
+    updateInfo();
 }
 
 void TFolder::removeAll()
@@ -213,10 +231,6 @@ void TFolder::removeAll()
         if(elt->type()==Folder){
             TFolder* folder=qobject_cast<TFolder*>(elt);
             folder->removeAll();
-            if(FolderHistory.contains(folder)){
-                FolderHistory.removeOne(folder);
-                currentFolderIndex=FolderHistory.size()-1;
-            }
         }
     }
 
@@ -271,7 +285,7 @@ void TFolder::handleRename(){
     inpD->setPurpose(InputDialog::Purpose::Rename);
     *inpD << path()<<name()<<QString::number(1)<<QString::number(m_WfileList.isEmpty());
 
-    inpD->show();
+    inpD->exec();
 
     QEventLoop loop;
     connect(inpD, &InputDialog::DoneRenaming,&loop,[this,&loop](const QString& str){
@@ -284,57 +298,61 @@ void TFolder::handleRename(){
 
 void TFolder::moveToTrash()
 {
-    m_pTFolder->getMainThread()->softDeleteFolder(m_info.filepath);
+    m_pTFolder->getNetworkAgent()->softDeleteFolder(m_info.filepath);
 
     // Disconnect previous connections to avoid duplicate message boxes
-    disconnect(m_pTFolder->getMainThread(), &mainThread::deleteSuccess, nullptr, nullptr);
-    disconnect(m_pTFolder->getMainThread(), &mainThread::deleteFailed, nullptr, nullptr);
+    disconnect(m_pTFolder->getNetworkAgent(), &NetworkAgent::deleteSuccess, nullptr, nullptr);
+    disconnect(m_pTFolder->getNetworkAgent(), &NetworkAgent::deleteFailed, nullptr, nullptr);
 
-    connect(m_pTFolder->getMainThread(), &mainThread::deleteSuccess, this, [this]{
+    connect(m_pTFolder->getNetworkAgent(), &NetworkAgent::deleteSuccess, this, [this]{
         m_pTFolder->remove(this);
-        QMessageBox::information(nullptr, "Success", "File deleted successfully");
+        TNotifaction::instance()->setMessage("Success moving to trash folder " + name());
+
     });
 
-    connect(m_pTFolder->getMainThread(), &mainThread::deleteFailed, this, [](QString error){
-        QMessageBox::information(nullptr, "Failed", error);
+    connect(m_pTFolder->getNetworkAgent(), &NetworkAgent::deleteFailed, this, [this](QString error){
+        TNotifaction::instance()->setMessage("Error"+error+" while moving to trash folder " + name(),true);
     });
 }
 
 void TFolder::deleteFolder()
 {
-    m_pTFolder->getMainThread()->deleteFolder(m_info.filepath);
+    m_pTFolder->getNetworkAgent()->deleteFolder(m_info.filepath);
 
     // Disconnect previous connections to avoid duplicate message boxes
-    disconnect(m_pTFolder->getMainThread(), &mainThread::deleteSuccess, nullptr, nullptr);
-    disconnect(m_pTFolder->getMainThread(), &mainThread::deleteFailed, nullptr, nullptr);
+    disconnect(m_pTFolder->getNetworkAgent(), &NetworkAgent::deleteSuccess, nullptr, nullptr);
+    disconnect(m_pTFolder->getNetworkAgent(), &NetworkAgent::deleteFailed, nullptr, nullptr);
 
-    connect(m_pTFolder->getMainThread(), &mainThread::deleteSuccess, this, [this]{
+    connect(m_pTFolder->getNetworkAgent(), &NetworkAgent::deleteSuccess, this, [this]{
         m_pTFolder->remove(this);
-        QMessageBox::information(nullptr, "Success", "File deleted successfully");
+        TNotifaction::instance()->setMessage("sucess deleting folder " + name());
     });
 
-    connect(m_pTFolder->getMainThread(), &mainThread::deleteFailed, this, [](QString error){
-        QMessageBox::information(nullptr, "Failed", error);
+    connect(m_pTFolder->getNetworkAgent(), &NetworkAgent::deleteFailed, this, [this](QString error){
+        TNotifaction::instance()->setMessage("Error"+error+" while deleting folder " + name(),false);
     });
 }
 
 void TFolder::restoreFolder()
 {
-    getMainThread()->restoreFolder(m_info.filepath+"/.");
+    getNetworkAgent()->restoreFolder(m_info.filepath+"/.");
 
-    connect(getMainThread(), &mainThread::restoreSuccess, this, [this]{
-        disconnect(getMainThread(), &mainThread::restoreSuccess, nullptr, nullptr);
+    connect(getNetworkAgent(), &NetworkAgent::restoreSuccess, this, [this]{
+        disconnect(getNetworkAgent(), &NetworkAgent::restoreSuccess, nullptr, nullptr);
         parentFolder()->remove(this);
+        TNotifaction::instance()->setMessage("Success restoring folder " + name());
     });
 
-    connect(getMainThread(), &mainThread::restoreFailed, this, [this](QString error){
-        disconnect(getMainThread(), &mainThread::restoreFailed, nullptr, nullptr);
-        qDebug() << "Error=" <<error;
+    connect(getNetworkAgent(), &NetworkAgent::restoreFailed, this, [this](QString error){
+        disconnect(getNetworkAgent(), &NetworkAgent::restoreFailed, nullptr, nullptr);
+        TNotifaction::instance()->setMessage("Error"+error+" while restoring folder " + name(),true);
     });
 }
 
 
-QString TFolder::path() const {return m_pTFolder ? m_pTFolder->path() + "/" + m_name : ":";}
+QString TFolder::path() const {
+    return m_pTFolder ? m_pTFolder->path() + "/" + m_name : ":";
+}
 
 QList<eltCore> TFolder::getList() const
 {
@@ -381,51 +399,30 @@ QString TFolder::extractFolderName(QString path)
 // Setup scroll area
 void TFolder::setupScrollArea()
 {
-    m_scrollArea = new QScrollArea(this);
+    m_scrollArea = new QScrollArea(displayStackWidget);
     m_scrollArea->setObjectName("m_scrollArea");
     m_scrollArea->setWidgetResizable(true);
     m_scrollArea->setFrameShape(QFrame::NoFrame);
+    m_scrollArea->setWindowFlag(Qt::FramelessWindowHint);
     m_scrollArea->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
     m_scrollArea->setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
-    layout()->addWidget(m_scrollArea);
     m_scrollArea->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
-}
 
-void TFolder::display(bool d)
-{
-    if(d){
-        for (auto &elt : m_WfileList) {
-            elt->show();
-        }
-        m_fileWidget->show();
-        QWidget *g = m_scrollArea->takeWidget();
-        m_scrollArea->setWidget(m_fileWidget);
-        m_scrollArea->update();
-        folderIconView->hide();
-        setZoomed(true);
-        emit Zoom(this);
-        update();
-
-
-        Q_UNUSED(g);
-    }
+    displayStackWidget->addWidget(m_scrollArea);
 }
 
 // Setup TFolder icon view
 void TFolder::setupFolderIconView()
 {
-    folderIconView = new TWidget(this);
-    folderIconView->setObjectName("folderIconView");
-    //folderIconView->setStyleSheet("QWidget{background:transparent;}");
-    folderIconView->setWindowFlag(Qt::FramelessWindowHint);
-    m_labelName = new TLabel(m_name, folderIconView);
+
+    m_labelName = new TLabel(m_name, this);
     m_labelName->setObjectName("m_labelName");
     m_labelName->setAlignment(Qt::AlignHCenter);
     m_labelName->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
     m_labelName->setMinimumSize(QSize(162,70));
 
     m_icon = QIcon(":/icons/folder.svg");
-    m_iconButton = new TPushButton(folderIconView);
+    m_iconButton = new QPushButton(this);
     m_iconButton->setIcon(m_icon);
     m_iconButton->setIconSize(QSize(100,82));
     m_iconButton->setFixedSize(QSize(100,82));
@@ -433,16 +430,15 @@ void TFolder::setupFolderIconView()
 
     //m_iconButton->setStyleSheet("background: transparent; border: none;");
 
-    m_displayLayout = new QGridLayout(folderIconView);
 
     m_displayLayout->addWidget(m_iconButton,0,0,Qt::AlignCenter);
     m_displayLayout->addWidget(m_labelName,1,0,Qt::AlignCenter);
-    m_displayLayout->setContentsMargins(3,3,3,3);
+    m_displayLayout->setContentsMargins(3,2,4,2);
     m_displayLayout->setVerticalSpacing(1);
 
+    m_labelName->setAttribute(Qt::WA_TransparentForMouseEvents);
+    m_iconButton->setAttribute(Qt::WA_TransparentForMouseEvents);
 
-    folderIconView->setLayout(m_displayLayout);
-    folderIconView->setAttribute(Qt::WA_TransparentForMouseEvents);
 
     settingUpMenu();
 
@@ -456,81 +452,6 @@ void TFolder::setupFolderIconView()
 
 }
 
-// Setup file view
-void TFolder::setupFileView()
-{
-    m_fileWidget = new TFileWidget(this,m_fManager);
-    m_fileWidget->setObjectName("m_fileWidget");
-    TGridLayout* layout=m_fileWidget->getLayout();
-    layout->setBaseWidth(160);
-
-    if (m_base) {
-        setRoundness(15);
-
-        layout->setContentsMargins(5,5,5,5);
-        //setStyleSheet("QFrame{background:transparent;}#m_scrollArea{border-radius:0px;}");
-        m_fileWidget->setStyleSheet("QWidget{background:transparent;}");
-        m_scrollArea->setWidget(m_fileWidget);
-    } else {
-        layout->setContentsMargins(0,0,0,0);
-        m_scrollArea->setWidget(folderIconView);
-        m_fileWidget->hide();
-    }
-
-}
-
-// Set icon view
-void TFolder::setIconView()
-{
-    folderIconView->show();
-    for (auto &elt : m_WfileList) {
-        elt->hide();
-    }
-    QWidget *g = m_scrollArea->takeWidget();
-    m_scrollArea->setWidget(folderIconView);
-
-    m_fileWidget->hide();
-    m_scrollArea->update();
-
-    setZoomed(false);
-    emit Zoom(this);
-    update();
-    Q_UNUSED(g);
-}
-
-// Set file view
-void TFolder::setFileView()
-{
-    if(!FolderHistory.contains(this)){
-        if (currentFolderIndex < FolderHistory.size() - 1) {
-            FolderHistory = FolderHistory.mid(0, currentFolderIndex + 1);
-        }
-        // Add the current TFolder to the history and update the index
-        if (FolderHistory.isEmpty() || FolderHistory.last() != this) {
-            FolderHistory.append(this);
-            currentFolderIndex = FolderHistory.size() - 1;
-        }
-    }else{
-        currentFolderIndex++;
-    }
-
-    m_fManager->setPath(this->path());
-
-    for (auto &elt : m_WfileList) {
-        elt->show();
-    }
-    m_fileWidget->show();
-    QWidget *g = m_scrollArea->takeWidget();
-    m_scrollArea->setWidget(m_fileWidget);
-    folderIconView->hide();
-    m_scrollArea->update();
-
-    setZoomed(true);
-    emit Zoom(this);
-    update();
-
-    Q_UNUSED(g);
-}
 
 void TFolder::updateInfo()
 {
@@ -550,7 +471,7 @@ void TFolder::updateInfo()
 
 eltCore TFolder::core()
 {
-    return eltCore(name(),path(),m_info);
+    return eltCore(name(),path(),m_info,m_type);
 }
 
 void TFolder::copy()
@@ -563,16 +484,11 @@ void TFolder::cut()
     cutFolder();
 }
 
-
-// Toggle zoom
-void TFolder::toggleZoom()
+void TFolder::deleteElt()
 {
-    if (m_fileWidget->getLayout()->isZoomed()) {
-        m_fileWidget->getLayout()->showAll();
-    } else {
-        m_fileWidget->getLayout()->zoomTo(qobject_cast<QWidget*>(sender()));
-    }
+
 }
+
 
 // Setup TFolder structure recursively
 bool TFolder::setupFolder(TFolder* pFolder, TFileInfo finalInfo)
@@ -585,15 +501,18 @@ bool TFolder::setupFolder(TFolder* pFolder, TFileInfo finalInfo)
         info.filepath=firstFolder;
         finalInfo.filepath = finalInfo.filepath.replace(firstFolder + "/", "");
         QString fullPath = pFolder->path().endsWith("/") ? pFolder->path() + firstFolder : pFolder->path() + "/" + firstFolder;
-        TFolder* currentFolder = FolderRegistry.contains(fullPath) ? FolderRegistry[fullPath] : new TFolder(info, false, pFolder,pFolder->m_Tmanager,pFolder->m_mThread,pFolder->m_fManager,pFolder->fileWidget());
-        if (!FolderRegistry.contains(fullPath)) {
+        bool contains=FolderRegistry.contains(fullPath);
+        TFolder* currentFolder = contains ? FolderRegistry[fullPath] : new TFolder(info, false, pFolder,pFolder->m_Tmanager,pFolder->m_mThread,pFolder->m_fManager,pFolder->fileWidget());
+        if (!contains) {
             FolderRegistry[fullPath] = currentFolder;
             pFolder->add(currentFolder);
         }
+        //finalInfo.data();
         return setupFolder(currentFolder,finalInfo);
     } else {
         if (!finalInfo.filepath.isEmpty() && finalInfo.filepath != ".") {
             finalInfo.filepath = pFolder->path() + "/" + finalInfo.filepath;
+            //finalInfo.data();
             TFile* file = new TFile(pFolder,finalInfo, pFolder->fileWidget());
             pFolder->add(file);
             return true;
@@ -601,9 +520,11 @@ bool TFolder::setupFolder(TFolder* pFolder, TFileInfo finalInfo)
         return false;
     }
 }
+
+
 void TFolder::setupFolderAsync(TFolder* pFolder, TFileInfo finalInfo)
 {
-    QTimer::singleShot(20, 0,[pFolder, finalInfo]() mutable {
+    QTimer::singleShot(10, 0,[pFolder, finalInfo]() mutable {
         if (finalInfo.filepath.contains("/")) {
             QStringList pathComponents = finalInfo.filepath.split("/", Qt::SkipEmptyParts);
             if (pathComponents.isEmpty()) return;
@@ -625,7 +546,7 @@ void TFolder::setupFolderAsync(TFolder* pFolder, TFileInfo finalInfo)
                 pFolder->add(currentFolder);
             }
 
-            QTimer::singleShot(20,0, [currentFolder, finalInfo]() mutable {
+            QTimer::singleShot(10,0, [currentFolder, finalInfo]() mutable {
                 currentFolder->setupFolderAsync(currentFolder, finalInfo);
             });
 
@@ -736,15 +657,22 @@ void TFolder::setupDeletedFolderAsync(TFolder* pFolder, TFileInfo finalInfo)
 void TFolder::reset()
 {
     FolderRegistry.clear();
-    FolderHistory.clear();
 
     DFolderRegistry.clear();
-    DFolderHistory.clear();
 
     SFolderRegistry.clear();
-    SFolderHistory.clear();
 
     currentFolderIndex = -1;
+}
+
+TFolder *TFolder::currentFolder()
+{
+    return m_currentFolder;
+}
+
+void TFolder::setDisplayStackWidget(TStackedWidget *stackedW)
+{
+    displayStackWidget=stackedW;
 }
 
 // Set style
@@ -753,20 +681,6 @@ void TFolder::setStyle(bool s_style)
     setStyleSheet(s_style ? selectedStyleSheet : initialStyleSheet);
 }
 
-void TFolder::setZoomed(bool zoom) {
-    if(isSelected()) setSelected(false);
-    m_isZoomed = zoom;
-
-    QString style=styleSheet();
-    QString text=R"(QFrame:hover {background:rgba(189,189,189,0.4);border-radius: 15px;border:1px solid rgb(71,158,245);})";
-    if(zoom){
-        style.replace(text,"");
-    }else{
-        style+=text;
-    }
-    setStyleSheet(style);
-    repaint();
-}
 
 // Copy the TFolder
 TFolder* TFolder::_copy()
@@ -789,13 +703,15 @@ TFolder* TFolder::_copy()
     return newTFolder;
 }
 
-void TFolder::copyFolder(QString oldName)
+/*void TFolder::copyFolder(QString oldName)
 {
     TClipBoard* clipBoard = TClipBoard::instance();
     if(!clipBoard) return;
+    if(!multiSelection()) clipBoard->clear();
 
     clipBoard->setType(TClipBoard::Copy);
     eltCore core = this->core();
+    if(oldName.isEmpty()) clipBoard->addElt(path(),type());
 
     // Build the base path for this folder and its contents
     QString basePath = oldName.isEmpty() ? core.name : oldName + "/" + core.name;
@@ -817,14 +733,81 @@ void TFolder::copyFolder(QString oldName)
             clipBoard->append(fileCore);
         }
     }
+}*/
+
+void TFolder::copyFolder(QString oldName) {
+    TClipBoard* clipBoard = TClipBoard::instance();
+    if (!clipBoard) return;
+
+    QList<eltCore> list;
+    QString base = oldName.isEmpty() ? name() : oldName + "/" + name();
+
+    eltCore rootCore = core();
+    rootCore.name = base + "/.";
+    rootCore.root=true;
+    list.append(rootCore);
+
+    for (TFolder* sub : std::as_const(subFolders))
+        sub->collectClipboardItems(list, base);
+
+    for (TCloudElt* elt : std::as_const(m_WfileList)) {
+        if (elt->type() == TCloudElt::File) {
+            eltCore fileCore = elt->core();
+            fileCore.name = base + "/" + fileCore.name;
+            list.append(fileCore);
+        }
+    }
+    qDebug() << rootCore.name;
+    qDebug() << list;
+
+    clipBoard->set(TClipBoard::Copy, list);
+}
+void TFolder::collectClipboardItems(QList<eltCore>& out, const QString& base) {
+    QString folderName = base + "/" + name();
+    eltCore folderCore = core();
+    folderCore.name = folderName + "/.";
+    out.append(folderCore);
+
+    for (TFolder* sub : std::as_const(subFolders))
+        sub->collectClipboardItems(out, folderName);
+
+    for (TCloudElt* elt : std::as_const(m_WfileList)) {
+        if (elt->type() == TCloudElt::File) {
+            eltCore fileCore = elt->core();
+            fileCore.name = folderName + "/" + fileCore.name;
+            out.append(fileCore);
+        }
+    }
 }
 
-void TFolder::cutFolder()
-{
-    copyFolder();
-    TClipBoard::instance()->setType(TClipBoard::Cut);
-    m_pTFolder->remove(this);
+
+void TFolder::cutFolder(QString oldName) {
+    TClipBoard* clipBoard = TClipBoard::instance();
+    if (!clipBoard) return;
+
+    QList<eltCore> list;
+    QString base = oldName.isEmpty() ? name() : oldName + "/" + name();
+
+    eltCore rootCore = core();
+    rootCore.name = base + "/.";
+    list.append(rootCore);
+
+    for (TFolder* sub : std::as_const(subFolders))
+        sub->collectClipboardItems(list, base);
+
+    for (TCloudElt* elt : std::as_const(m_WfileList)) {
+        if (elt->type() == TCloudElt::File) {
+            eltCore fileCore = elt->core();
+            fileCore.name = base + "/" + fileCore.name;
+            list.append(fileCore);
+        }
+    }
+
+    clipBoard->set(TClipBoard::Cut, list);
+    if (m_pTFolder) m_pTFolder->remove(this); // remove self from UI
 }
+
+
 
 qint64 TFolder::getSize(){
 
@@ -838,6 +821,7 @@ qint64 TFolder::getSize(){
         }
     }
     m_size=size;
+
     return size;
 }
 
@@ -876,9 +860,6 @@ TFolder::SortType TFolder::sortType() const
 void TFolder::setSortType(SortType newSortType,bool order)
 {
     if(newSortType==m_sortType) return;
-    qDebug() << "sorting :" << name();
-    qDebug()   <<" from:"<<m_sortType << " to:"<<newSortType;
-    qDebug("---END-----");
 
     m_sortType = newSortType;
 
@@ -917,7 +898,7 @@ void TFolder::setFavoriteLayout(QVBoxLayout *newFavoriteLayout)
     }
 }
 
-mainThread *TFolder::getMainThread() const
+NetworkAgent *TFolder::getNetworkAgent() const
 {
     return m_mThread;
 }
@@ -941,7 +922,7 @@ TFolderLink::TFolderLink(TFileInfo info,QVBoxLayout* layout, TFileManager *fm, Q
 
     m_labelName=new TLabel(this);
     m_labelName->setObjectName("m_labelName");
-    m_iconButton=new TPushButton(this);
+    m_iconButton=new QPushButton(this);
     iconSize=QSize(24,24);
     m_iconButton->setIcon(m_icon);
     m_iconButton->setIconSize(iconSize);

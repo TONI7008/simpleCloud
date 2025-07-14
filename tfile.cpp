@@ -1,17 +1,18 @@
 #include <QMessageBox>
 #include <QFileIconProvider>
+#include <QPushButton>
 
 #include "tfolder.h"
 #include "tfile.h"
 #include "tlabel.h"
-#include "tpushbutton.h"
 #include "tfilewidget.h"
 #include "infopage.h"
 #include "loader.h"
 #include "tmenu.h"
 #include "inputdialog.h"
 #include "threadmanager.h"
-#include "mainthread.h"
+#include "networkagent.h"
+#include "tnotification.h"
 #include "tclipboard.h"
 
 TFile::TFile(TFolder* folder,TFileInfo info,QWidget* parent) : TCloudElt(parent),
@@ -39,10 +40,11 @@ TFile::TFile(TFolder* folder,TFileInfo info,QWidget* parent) : TCloudElt(parent)
 
 
     m_icon=getIcon();
-    m_iconButton = new TPushButton(this);
-    m_iconButton->setIcon(m_icon);
+    m_iconButton = new QPushButton(this);
     iconSize=QSize(100,80);
     m_iconButton->setFixedSize(iconSize);
+
+    m_iconButton->setIcon(m_icon);
     m_iconButton->setIconSize(iconSize);
     m_iconButton->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
 
@@ -91,13 +93,13 @@ void TFile::open(){
     m_pFolder->getThreadManager()->openFile(m_info.filepath);
 }
 
-void TFile::renamFile()
+void TFile::renameFile()
 {
     InputDialog* inpD=InputDialog::instance();
     inpD->setPurpose(InputDialog::Purpose::Rename);
     *inpD << filePath()<<name()<<QString::number(0)<<QString::number(0);
 
-    inpD->show();
+    inpD->exec();
 
     QEventLoop loop;
     connect(inpD, &InputDialog::DoneRenaming,&loop,[this,&loop](const QString& str){
@@ -111,31 +113,31 @@ void TFile::renamFile()
 
 void TFile::deleteFile()
 {
-    m_pFolder->getMainThread()->deleteFile(m_info.filepath);
+    m_pFolder->getNetworkAgent()->deleteFile(m_info.filepath);
 
-    connect(m_pFolder->getMainThread(), &mainThread::deleteSuccess, this, [this]{
-        disconnect(m_pFolder->getMainThread(), &mainThread::deleteSuccess, nullptr, nullptr);
+    connect(m_pFolder->getNetworkAgent(), &NetworkAgent::deleteSuccess, this, [this]{
+        disconnect(m_pFolder->getNetworkAgent(), &NetworkAgent::deleteSuccess, nullptr, nullptr);
         m_pFolder->remove(this);
     });
 
-    connect(m_pFolder->getMainThread(), &mainThread::deleteFailed, this, [this](QString error){
-        disconnect(m_pFolder->getMainThread(), &mainThread::deleteFailed, nullptr, nullptr);
-        qDebug() << "Error=" <<error;
+    connect(m_pFolder->getNetworkAgent(), &NetworkAgent::deleteFailed, this, [this](QString error){
+        disconnect(m_pFolder->getNetworkAgent(), &NetworkAgent::deleteFailed, nullptr, nullptr);
+        TNotifaction::instance()->setMessage("Error"+error+" while deleting file " + name(),true);
     });
 }
 
 void TFile::moveToTrash()
 {
-    m_pFolder->getMainThread()->softDeleteFile(m_info.filepath);
+    m_pFolder->getNetworkAgent()->softDeleteFile(m_info.filepath);
 
-    connect(m_pFolder->getMainThread(), &mainThread::deleteSuccess, this, [this]{
-        disconnect(m_pFolder->getMainThread(), &mainThread::deleteSuccess, nullptr, nullptr);
+    connect(m_pFolder->getNetworkAgent(), &NetworkAgent::deleteSuccess, this, [this]{
+        disconnect(m_pFolder->getNetworkAgent(), &NetworkAgent::deleteSuccess, nullptr, nullptr);
         m_pFolder->softRemove(this);
     });
 
-    connect(m_pFolder->getMainThread(), &mainThread::deleteFailed, this, [this](QString error){
-        disconnect(m_pFolder->getMainThread(), &mainThread::deleteFailed, nullptr, nullptr);
-        qDebug() << "Error=" <<error;
+    connect(m_pFolder->getNetworkAgent(), &NetworkAgent::deleteFailed, this, [this](QString error){
+        disconnect(m_pFolder->getNetworkAgent(), &NetworkAgent::deleteFailed, nullptr, nullptr);
+        TNotifaction::instance()->setMessage("Error"+error+" while moving to trash file " + name(),true);
     });
 
 
@@ -148,7 +150,7 @@ void TFile::downloadFile()
         return;
     }
     if(!downloaded){
-        m_pFolder->getThreadManager()->download(m_info.filepath,m_pFolder->getMainThread()->getUsername(),m_load);
+        m_pFolder->getThreadManager()->download(m_info.filepath,m_pFolder->getNetworkAgent()->getUsername(),m_load);
         isDownloading=true;
     }
 }
@@ -167,16 +169,16 @@ void TFile::openFile()
 
 void TFile::restoreFile()
 {
-    m_pFolder->getMainThread()->restoreFile(m_info.filepath);
+    m_pFolder->getNetworkAgent()->restoreFile(m_info.filepath);
 
-    connect(m_pFolder->getMainThread(), &mainThread::restoreSuccess, this, [this]{
-        disconnect(m_pFolder->getMainThread(), &mainThread::restoreSuccess, nullptr, nullptr);
+    connect(m_pFolder->getNetworkAgent(), &NetworkAgent::restoreSuccess, this, [this]{
+        disconnect(m_pFolder->getNetworkAgent(), &NetworkAgent::restoreSuccess, nullptr, nullptr);
         m_pFolder->remove(this);
     });
 
-    connect(m_pFolder->getMainThread(), &mainThread::restoreFailed, this, [this](QString error){
-        disconnect(m_pFolder->getMainThread(), &mainThread::restoreFailed, nullptr, nullptr);
-        qDebug() << "Error=" <<error;
+    connect(m_pFolder->getNetworkAgent(), &NetworkAgent::restoreFailed, this, [this](QString error){
+        disconnect(m_pFolder->getNetworkAgent(), &NetworkAgent::restoreFailed, nullptr, nullptr);
+        TNotifaction::instance()->setMessage("Error"+error+" while restoring file" + name(),true);
     });
 }
 
@@ -231,7 +233,7 @@ void TFile::settingUpMenu()
         contextMenu->addAction(openAction);
         contextMenu->addAction(openDFolderAction);
 
-        connect(renameAction, &QAction::triggered, this,&TFile::renamFile);
+        connect(renameAction, &QAction::triggered, this,&TFile::renameFile);
 
         connect(propertyAction, &QAction::triggered, this, [this]{
             InfoPage::instance()->showForFile(m_info);
@@ -272,7 +274,7 @@ void TFile::settingUpMenu()
 }
 eltCore TFile::core()
 {
-    return eltCore(name(),filePath(),m_info);
+    return eltCore(name(),filePath(),m_info,m_type);
 }
 
 QString TFile::filePath(){
@@ -321,18 +323,28 @@ QWidget *TFile::originParent()
     return parentFolder()->originParent();
 }
 
-void TFile::copy()
-{
-    TClipBoard::instance()->append(core());
-    TClipBoard::instance()->setType(TClipBoard::Copy);
-}
-void TFile::cut()
-{
-    TClipBoard::instance()->setType(TClipBoard::Cut);
-    TClipBoard::instance()->append(core());
+void TFile::copy() {
+    TClipBoard* clipBoard = TClipBoard::instance();
+    if (!clipBoard) return;
+    if (!multiSelection()) clipBoard->clear();
 
-    m_pFolder->remove(this);
+    eltCore fileCore = this->core();
+    fileCore.name = fileCore.name; // no change needed
+    clipBoard->set(TClipBoard::Copy, fileCore);
 }
+
+void TFile::cut() {
+    TClipBoard* clipBoard = TClipBoard::instance();
+    if (!clipBoard) return;
+    if (!multiSelection()) clipBoard->clear();
+
+    eltCore fileCore = this->core();
+    fileCore.name = fileCore.name;
+    clipBoard->set(TClipBoard::Cut, fileCore);
+
+    if (m_pFolder) m_pFolder->remove(this); // remove from UI only, server cut handled in paste
+}
+
 
 
 QString TFile::extractFilename(QString path)

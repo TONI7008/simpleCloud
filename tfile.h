@@ -2,7 +2,7 @@
 #define TTFile_H
 
 #include "tcloudelt.h"
-#include "tfileinfo.h"
+#include "tfileinfo.hpp"
 #include <QVBoxLayout>
 
 class TMenu;
@@ -56,7 +56,7 @@ private:
     void settingUpMenu();
     void open();
 
-    void renamFile();
+    void renameFile();
     void deleteFile();
     void moveToTrash();
     void downloadFile();

@@ -7,18 +7,19 @@
 #include <QScrollArea>
 #include <QMap>
 #include "tcloudelt.h"
-#include "tfileinfo.h"
+#include "tfileinfo.hpp"
 
 
 class QAnimatedGridLayout;
 class TFile;
 class TWidget;
 class TFileManager;
-class mainThread;
+class NetworkAgent;
 class ThreadManager;
 class InfoPage;
 class TFileWidget;
 class TMenu;
+class TStackedWidget;
 
 
 class TFolder : public TCloudElt
@@ -31,7 +32,8 @@ public:
         Type
     };
 
-    explicit TFolder(TFileInfo info, bool base=false,TFolder* pTFolder=nullptr,ThreadManager* t=nullptr,mainThread* mt=nullptr,TFileManager* fm=nullptr,QWidget *parent = nullptr);
+    explicit TFolder(TFileInfo info, bool base=false,TFolder* pTFolder=nullptr,ThreadManager* t=nullptr,NetworkAgent* mt=nullptr,
+                     TFileManager* fm=nullptr,QWidget *parent = nullptr);
     ~TFolder();
 
     void add(TCloudElt* elt);
@@ -55,28 +57,32 @@ public:
     static bool setupDeletedFolder(TFolder *pFolder, TFileInfo finalInfo);
     static void setupFolderAsync(TFolder *pFolder, TFileInfo finalInfo);
     static void setupDeletedFolderAsync(TFolder *pFolder, TFileInfo finalInfo);
+
     static void reset();
 
+
     static QMap<QString, TFolder*> FolderRegistry;
-    static QList<TFolder*> FolderHistory;
 
     static QMap<QString, TFolder*> SFolderRegistry;
-    static QList<TFolder*> SFolderHistory;
 
     static QMap<QString, TFolder*> DFolderRegistry;
-    static QList<TFolder*> DFolderHistory;
+
     static int currentFolderIndex;
 
+    static void setDisplayStackWidget(TStackedWidget*);
+
     void setStyle(bool);
-    void setZoomed(bool zoom);
 
     bool isZoomed(){return m_isZoomed;}
     TFolder *_copy();
     void copyFolder(QString old="");
+    void cutFolder(QString old="");
 
-    void cutFolder();
+    //void copyFolder(QString path,QString old="");
+    //void cutFolder(QString path);
+
     qint64 getSize();
-    mainThread* getMainThread() const;
+    NetworkAgent* getNetworkAgent() const;
     ThreadManager* getThreadManager() const;
     QWidget* originParent() override;
     QVBoxLayout *favoriteLayout() const;
@@ -85,17 +91,22 @@ public:
     SortType sortType() const;
     void setSortType(SortType newSortType,bool order=true);
 
-signals:
-    void Zoom(TFolder* wid);
+
+    static TFolder *currentFolder();
 
 private:
 
     void handleRightClicked(const QPoint&);
 
-    mainThread* m_mThread;
-    ThreadManager* m_Tmanager;
+    NetworkAgent* m_mThread;
+    ThreadManager* m_Tmanager=nullptr;
     TFileManager* m_fManager=nullptr;
     TFolder* m_pTFolder=nullptr;
+    QScrollArea *m_scrollArea=nullptr;
+
+    static TStackedWidget* displayStackWidget;
+    static TFolder* m_currentFolder;
+
 
     bool m_base;
     bool m_isZoomed=false;
@@ -109,20 +120,18 @@ private:
     QList<TCloudElt*> m_WfileList;
 
     TFileWidget*m_fileWidget=nullptr;
-    TWidget* folderIconView=nullptr;
     TMenu* contextMenu=nullptr;
     QVBoxLayout* m_favoriteLayout=nullptr;
 
-    QScrollArea* m_scrollArea=nullptr;
 
     QString extractFolderName(QString path);
-    void setIconView();
-    void setFileView();
+
     void updateInfo();
 
     eltCore core() override;
     void copy() override;
     void cut() override;
+    void deleteElt() override;
 
     void handleRename();
     void moveToTrash();
@@ -130,20 +139,21 @@ private:
     void restoreFolder();
 
     void toggleZoom();
-    void setupFileView();
+    //void setupFileView();
     void setupFolderIconView();
     void setupScrollArea();
-    TFolder* zoomedElt();
-
-    void display(bool d=true);
 
 
     friend class TFileManager;
     friend class TFileWidget;
     friend class TFileChecker;
+    friend class TClipBoard;
 
     void settingUpMenu();
 
+    void openFolder();
+    void openPreviousFolder();
+    void collectClipboardItems(QList<eltCore> &out, const QString &base);
 };
 
 
