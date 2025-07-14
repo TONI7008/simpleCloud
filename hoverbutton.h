@@ -3,21 +3,8 @@
 
 #include <QPushButton>
 #include <QHoverEvent>
-#include <QToolButton>
 #include <QIcon>
 #include <QMap>
-
-class State {
-public:
-    bool isNormal() const { return normal; }
-    bool isSelected() const { return !normal; }
-    void setNormal() { normal = true; }
-    void setSelected() { normal = false; }
-    State() : normal(true) {}
-
-private:
-    bool normal;
-};
 
 class HoverButton : public QPushButton {
     Q_OBJECT
@@ -26,9 +13,10 @@ class HoverButton : public QPushButton {
 public:
     HoverButton(QWidget *parent = nullptr);
     QColor color() const { return m_color; }
+    void setObjectName(const QString&);
 
-    // Set a fixed icon size for all buttons
-    void setGlobalIconSize(const QSize &size) { m_globalIconSize = size; }
+    static QColor defaultColor();
+    static void setDefaultColor(const QColor &color);
 
 protected:
     bool event(QEvent *event) override {
@@ -45,16 +33,18 @@ signals:
 
 private:
     QColor m_color;
-    QSize m_globalIconSize = QSize(32, 32); // Default size
     QStringList m_exceptions = {"profile", "accueil", "parametre", "securite", "performance", "contact"};
-    QMap<QString, QPair<QIcon, QIcon>> m_iconMap; // Simplified map
-    State m_state;
+
+    static QMap<QString, QPair<QIcon, QIcon>> m_iconMap;
+    static QColor m_defaultColor;
 
     void handleClicked();
     void handleHoverEvent(QHoverEvent* event);
     void hoverState();
     void leaveState();
     void animateColor(const QColor &startValue, const QColor &endValue);
+
+    static void updateIconMap();
 };
 
 #endif
