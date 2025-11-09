@@ -14,9 +14,19 @@
 ---
 
 ## 🖼️ Screenshots
-https://github.com/TONI7008/simpleCloud/blob/main/screenshots/Screenshot_20250529_161654.png
-https://github.com/TONI7008/simpleCloud/blob/main/screenshots/Screenshot_20250529_161825.png
-https://github.com/TONI7008/simpleCloud/blob/main/screenshots/simplecloudv00.png
+<div align="center">
+  <a href="https://github.com/TONI7008/simpleCloud/blob/main/screenshots/Screenshot_20250529_161654.png">
+    <img src="https://github.com/TONI7008/simpleCloud/blob/main/screenshots/Screenshot_20250529_161654.png" alt="Screenshot 1" width="400" style="margin: 10px;"/>
+  </a>
+  <br>
+  <a href="https://github.com/TONI7008/simpleCloud/blob/main/screenshots/Screenshot_20250529_161825.png">
+    <img src="https://github.com/TONI7008/simpleCloud/blob/main/screenshots/Screenshot_20250529_161825.png" alt="Screenshot 2" width="400" style="margin: 10px;"/>
+  </a>
+  <br>
+  <a href="https://github.com/TONI7008/simpleCloud/blob/main/screenshots/simplecloudv00.png">
+    <img src="https://github.com/TONI7008/simpleCloud/blob/main/screenshots/simplecloudv00.png" alt="Screenshot 3" width="400" style="margin: 10px;"/>
+  </a>
+</div>
 ---
 
 ## 🛠️ Build Instructions
