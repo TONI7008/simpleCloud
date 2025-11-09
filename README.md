@@ -14,16 +14,9 @@
 ---
 
 ## 🖼️ Screenshots
-
-Here's our logo (hover to see the title text):
-
-Inline-style: 
-![alt text](https://github.com/adam-p/markdown-here/raw/master/src/common/images/icon48.png "Logo Title Text 1")
-
-Reference-style: 
-![alt text][logo]
-
-[logo]: https://github.com/adam-p/markdown-here/raw/master/src/common/images/icon48.png "Logo Title Text 2"
+https://github.com/TONI7008/simpleCloud/blob/main/screenshots/Screenshot_20250529_161654.png
+https://github.com/TONI7008/simpleCloud/blob/main/screenshots/Screenshot_20250529_161825.png
+https://github.com/TONI7008/simpleCloud/blob/main/screenshots/simplecloudv00.png
 ---
 
 ## 🛠️ Build Instructions
